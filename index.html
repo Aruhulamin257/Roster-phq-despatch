@@ -49,6 +49,10 @@ select,input{border:1px solid var(--bd);background:var(--card);color:var(--tx);b
 .av{width:24px;height:24px;border-radius:50%;object-fit:cover;margin:1px auto 0;display:flex;align-items:center;justify-content:center;background:var(--ac);color:var(--bg);font-size:12px}
 .g>input{min-width:0;width:100%}
 .ban .ck{margin-top:8px;font-size:13px;opacity:.95}.ban .ck b{font-size:22px;display:block;letter-spacing:.5px}
+.card{box-shadow:0 1px 3px rgba(16,24,40,.07)}
+.hero{background:linear-gradient(135deg,var(--acbg),var(--card));box-shadow:0 2px 8px rgba(30,58,138,.12)}
+button:active,.btn:active{transform:scale(.97)}
+.cur{box-shadow:0 2px 10px rgba(30,58,138,.18)}
 </style></head>
 <body><main id="app"></main>
 <script type="application/json" id="data">{"start":"2026-11-06","people":[{"id":"p1","name":"শামীম আল মামুন","phone":"+8801611551195","des":"এটিএসআই","rn":"1489","bp":"8910127659","sr":false},{"id":"p2","name":"সোহেল আহমেদ","phone":"+8801944710124","des":"নায়েক","rn":"1458","bp":"9211149558","sr":false},{"id":"p3","name":"রুহুল আমিন","phone":"+8801760296453","des":"কনস্টেবল","rn":"734","bp":"9617209462","sr":false},{"id":"p4","name":"সদস্য ৪","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p5","name":"সদস্য ৫","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p6","name":"সদস্য ৬","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p7","name":"সদস্য ৭","phone":"","des":"","rn":"","bp":"","sr":false}],"absent":{"2026-11-13":[],"2026-11-20":[]},"sent":{"2026-11-06":"৬ নভে"},"status":{"2026-11-06":"in"},"tpl":{"duty":"","rep":"","abs":""},"sub":{"2026-11-20":"p6","2026-11-13":"p3"},"manual":{}}</script>
@@ -65,11 +69,12 @@ const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const pd=s=>new Date(s+'T00:00:00');
 const addD=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
-const fd=s=>pd(s).toLocaleDateString('bn-BD',{day:'numeric',month:'short'});
+const fd=s=>pd(s).toLocaleDateString('bn-BD',{day:'numeric',month:'long'});
 const nm=id=>(S.people.find(p=>p.id===id)||{name:'?'}).name;
 const tg=id=>{const p=S.people.find(x=>x.id===id);return p&&p.sr?' <span class="tag">সিনিয়র</span>':''};
 const nextF=()=>addD(curFri(),7);
-const elig=(p,d)=>{if(p.j&&d<p.j)return false;const h=p.hist||[];if(!h.length)return true;let r=!h[0].on;for(const x of h)if(x.d<=d)r=x.on;return r};
+const isPh=p=>/^সদস্য\s*[০-৯0-9]+$/.test((p.name||'').trim())&&!p.phone&&!p.bp&&!p.des;
+const elig=(p,d)=>{if(p.j&&d<p.j)return false;const h=p.hist||[];if(!h.length)return !isPh(p);let r=!h[0].on;for(const x of h)if(x.d<=d)r=x.on;return r};
 const fill=(t,id,d,s,x)=>{x=x||{};return t.replace(/\{নাম\}/g,nm(id)).replace(/\{শুক্র\}/g,'শুক্রবার ('+fd(d)+')').replace(/\{শনি\}/g,'শনিবার ('+fd(s)+')').replace(/\{অনুপস্থিত\}/g,x.ab||'').replace(/\{বদলি\}/g,x.rep||'').replace(/\{পরবর্তী\}/g,x.nx||'').replace(/\{পদবী\}/g,rk(id)).replace(/\{বিপি\}/g,bpf(id)).replace(/ {2,}/g,' ').replace(/ ,/g,',')};
 const DREP='আসসালামু আলাইকুম {নাম}, {অনুপস্থিত} অনুপস্থিত থাকায় এই শুক্রবার ({শুক্র}) ও শনিবার ({শনি}) আপনাকে ডিউটি করার অনুরোধ করা হলো।';
 const DABS='আসসালামু আলাইকুম {নাম}, এই সপ্তাহে ({শুক্র}) আপনি অনুপস্থিত ছিলেন, তাই আপনার ডিউটি {বদলি} করেছেন। আপনার পরবর্তী ডিউটি: {পরবর্তী}।';
@@ -127,7 +132,7 @@ function card(w,i,all,cur){
   const sat=addD(w.date,1);
   const abn=w.sk.map(i=>{const p=S.people.find(x=>x.id===i)||{};return (rk(i)+' '+p.name).trim()}).join(', ');const dm=(w.sk.length?fill(S.tpl.rep||DREP2,w.duty,w.date,sat,{ab:abn}):fill(S.tpl.duty||DDUTY,w.duty,w.date,sat))
     +(w.mk&&!w.sk.length?' (আগের অনুপস্থিত ডিউটির বদলে)':'');
-  let h='<div class="card'+(w.date===cur?' cur':'')+'"><div class="top"><span style="font-size:16px;font-weight:700;color:var(--tx)">শুক্র '+fd(w.date)+' – শনি '+fd(sat)+'</span>'+(w.date===cur?'<span class="badge">এই সপ্তাহ</span>':'')+'</div>';
+  let h='<div class="card'+(w.date===cur?' cur':'')+'"><div class="top"><span style="font-size:16px;font-weight:700;color:var(--tx)">🗓 শুক্রবার '+fd(w.date)+' – শনিবার '+fd(sat)+'</span>'+(w.date===cur?'<span class="badge">এই সপ্তাহ</span>':'')+'</div>';
   h+='<div class="duty" style="display:flex;align-items:center;gap:8px;font-size:17px">'+av2(w.duty)+'<span><span data-a="prof" data-id="'+w.duty+'" style="cursor:pointer;border-bottom:1px dotted currentColor">'+esc(dsp(w.duty))+'</span>'+tg(w.duty)+'</span></div>';
   if(w.mk)h+='<span class="tag">আগের অনুপস্থিতির বদলি ডিউটি</span>';
   w.sk.forEach(id=>{
