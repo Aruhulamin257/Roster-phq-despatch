@@ -102,6 +102,11 @@ body{background-image:linear-gradient(180deg,rgba(30,58,138,.07),transparent 340
 .tkt{white-space:nowrap;display:inline-block;padding-left:100%;animation:tkm 30s linear infinite;font-size:14px}
 @keyframes tkm{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 .ser{min-width:28px;width:28px;height:28px;border-radius:50%;background:var(--ac);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none;box-shadow:0 1px 4px rgba(30,58,138,.35)}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.opts3{grid-template-columns:repeat(3,1fr)}
+.opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 10px;border-radius:16px;text-align:center;background:linear-gradient(160deg,var(--card),var(--acbg));border:1px solid var(--bd);box-shadow:0 2px 8px rgba(30,58,138,.1)}
+.opt .oi{font-size:32px}.opt .ot{font-weight:700;font-size:15px}.opt .os{font-size:12px;color:var(--mu);line-height:1.4}
+.opts3 .opt{padding:12px 6px}.opts3 .oi{font-size:24px}.opts3 .ot{font-size:13px}
 </style></head>
 <body><main id="app"></main>
 <script type="application/json" id="data">{"start":"2026-11-06","people":[{"id":"p1","name":"শামীম আল মামুন","phone":"+8801611551195","des":"এটিএসআই","rn":"1489","bp":"8910127659","sr":false},{"id":"p2","name":"সোহেল আহমেদ","phone":"+8801944710124","des":"নায়েক","rn":"1458","bp":"9211149558","sr":false},{"id":"p3","name":"রুহুল আমিন","phone":"+8801760296453","des":"কনস্টেবল","rn":"734","bp":"9617209462","sr":false},{"id":"p4","name":"সদস্য ৪","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p5","name":"সদস্য ৫","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p6","name":"সদস্য ৬","phone":"","des":"","rn":"","bp":"","sr":false},{"id":"p7","name":"সদস্য ৭","phone":"","des":"","rn":"","bp":"","sr":false}],"absent":{"2026-11-13":[],"2026-11-20":[]},"sent":{"2026-11-06":"৬ নভে"},"status":{"2026-11-06":"in"},"tpl":{"duty":"","rep":"","abs":""},"sub":{"2026-11-20":"p6","2026-11-13":"p3"},"manual":{}}</script>
@@ -127,7 +132,7 @@ const RS=['ছুটি','অসুস্থতা','প্রশিক্ষণ
 const DEFHOL={'2026-12-16':'বিজয় দিবস','2026-12-25':'বড়দিন','2027-02-21':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','2027-03-26':'স্বাধীনতা দিবস','2027-04-14':'পহেলা বৈশাখ','2027-05-01':'মে দিবস','2027-08-05':'গণঅভ্যুত্থান দিবস','2027-12-16':'বিজয় দিবস','2027-12-25':'বড়দিন'};
 let S=JSON.parse($('data').textContent);
 let editor=false,adminEmail='',db=null,auth=null;
-const ui={tab:'r',open:null,showSet:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
+const ui={tab:'h',rN:9,sN:12,mord:false,open:null,showSet:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
 function norm(){
   const d={status:{},sub:{},tpl:{},manual:{},absent:{},absr:{},att:{},sent:{},notices:[],leaves:[],spov:{},spsent:{},orders:[],sporder:[],morder:[],day:{},spfix:{},tk:{on:true,text:'',color:'#1e3a8a'}};
   for(const k in d)if(!S[k])S[k]=d[k];
@@ -227,7 +232,10 @@ const vcall=()=>editor||S.vcall!==false;
 const wkdn=d=>pd(d).toLocaleDateString('bn-BD',{weekday:'long'});
 
 function banner(){return '<div class="ban"><div class="wx" id="wx"></div><div class="bis">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><img class="lg" src="'+LOGO+'" alt="লোগো"><div class="o">পুলিশ হেডকোয়ার্টার্স</div><div class="b">কেন্দ্রীয় ডেসপাচ শাখা</div><div class="m">✉️ চিঠিপত্র গ্রহণ ও বিতরণ</div><div class="r">রোস্টার ডিউটি ও ছুটির হিসাব</div><div class="ck" id="clk"></div></div><div class="sub" style="text-align:center;margin:6px 0 2px">প্রতি শুক্র–শনিবার রোস্টার ডিউটি, বিশেষ ডিউটি রোস্টার এবং ছুটির হিসাব</div>'}
-function tabsHtml(){return '<div class="tabs">'+[['r','📋','রোস্টার'],['s','⭐','বিশেষ'],['c','📅','ক্যালেন্ডার'],['l','🏖','ছুটি'],['m','👥','সদস্য']].map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join('')+'</div>'}
+function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=cur&&w.duty),ns=sp.find(x=>x.date>=t&&x.duty);
+  const opt=(tb,ic,ti,sb)=>'<button class="opt" data-a="tab" data-t="'+tb+'"><span class="oi">'+ic+'</span><span class="ot">'+ti+'</span><span class="os">'+(sb||'')+'</span></button>';
+  return '<h2>কী দেখতে চান?</h2><div class="opts">'+opt('r','📋','রোস্টার ডিউটির তালিকা',nw?'পরবর্তী: '+esc(fullnm(nw.duty)):'')+opt('s','⭐','বিশেষ ডিউটির তালিকা',ns?esc(fullnm(ns.duty))+' — '+fd(ns.date):'কোনো বিশেষ ডিউটি নেই')+'</div><div class="opts opts3">'+opt('c','📅','ক্যালেন্ডার','')+opt('l','🏖','ছুটির হিসাব','')+opt('m','👥','সদস্য','')+'</div>'}
+function tabsHtml(){return '<div class="tabs">'+[['h','🏠','হোম'],['r','📋','রোস্টার'],['s','⭐','বিশেষ'],['c','📅','ক্যালেন্ডার'],['l','🏖','ছুটি'],['m','👥','সদস্য']].map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join('')+'</div>'}
 const TKC=['#1e3a8a','#0f766e','#b45309','#9f1239','#4c1d95','#166534','#111827'];
 function tkSet(){const tk=S.tk||{};return '<div class="card"><label><input type="checkbox" id="tkon"'+(tk.on!==false?' checked':'')+' style="width:auto"> বিজ্ঞপ্তি-পট্টি চালু</label><input id="tktx" class="fw" value="'+esc(tk.text||'')+'" placeholder="বিজ্ঞপ্তির লেখা (ফাঁকা রাখলে নোটিশগুলো চলবে)"><div class="sub">রং বাছুন:</div><div class="row">'+TKC.map(c=>'<button data-a="tkc" data-c="'+c+'" style="background:'+c+';width:30px;height:30px;padding:0;border:'+(tk.color===c?'3px solid var(--gd)':'1px solid var(--bd)')+'"></button>').join('')+'<input type="color" id="tkcol" value="'+esc(tk.color||'#1e3a8a')+'" style="width:44px;padding:0;height:32px"></div><div class="row"><button class="pri" data-a="tksv">সেভ করো</button></div></div>'}
 function tickerHtml(){const tk=S.tk||{},tx=(tk.text||'').trim()||(S.notices||[]).map(n=>n.t.replace(/\s+/g,' ')).join('   •   ');let h='';
@@ -293,15 +301,15 @@ function pendHtml(out,sp,cur){const t=iso(new Date());let r='';
   sp.filter(x=>x.date>=t&&x.sk&&x.sk.length&&!x.ov).slice(0,6).forEach(x=>{r+='<div class="note">⚠ বিশেষ ডিউটির বদলি নির্বাচন বাকি: <b>'+esc(x.sk.map(fullnm).join(', '))+'</b> ('+esc(x.rs||'')+') — '+fd(x.date)+' ('+esc(x.name)+')'+(x.duty?' · এখন ধরা আছে: '+esc(fullnm(x.duty)):'')+' <button data-a="spdlg" data-d="'+x.date+'" class="mini">বদলি বাছুন</button></div>'});
   return r}
 function rosterTab(out,sp,cur){
-  const up=out.filter(w=>w.date>=cur&&w.date<=addD(cur,63)),hist=out.filter(w=>w.date<cur).reverse().slice(0,8),R=exRange(),t=iso(new Date());
+  const upAll=out.filter(w=>w.date>=cur),up=upAll.slice(0,ui.rN),hist=out.filter(w=>w.date<cur).reverse().slice(0,8),R=exRange(),t=iso(new Date());
   let h='';
   if(editor){h+=pendHtml(out,sp,cur)+'<div class="row"><button data-a="ordt">🔀 রোস্টারের ক্রম সাজান</button></div>';
     if(ui.ord)h+='<div class="sub">ওপর-নিচ ধরে টানুন (⠿) বা ▲▼ চাপুন। নতুন ক্রম পরের সপ্তাহ ('+fd(nextF())+') থেকে কার্যকর। যিনি সর্বশেষ ডিউটি করেছেন তাঁর পরের জন থেকে এই ক্রমে চলবে। এক্সেলেও এই ক্রম আসবে।</div>'+ordList('r')}
-  h+='<h2>আসছে সপ্তাহগুলো</h2><div class="sub">বামের গোল নম্বর = ডিউটির ক্রমিক (১ = সবচেয়ে কাছের সপ্তাহ)</div>'+(up.length?'<div class="wlist">'+up.map((w,i)=>weekCard(w,cur,out,i+1)).join('')+'</div>':'<div class="sub">কিছু নেই</div>');
+  h+='<h2>আসছে সপ্তাহগুলো</h2><div class="sub">বামের গোল নম্বর = ডিউটির ক্রমিক (১ = সবচেয়ে কাছের সপ্তাহ)</div>'+(up.length?'<div class="wlist">'+up.map((w,i)=>weekCard(w,cur,out,i+1)).join('')+'</div>'+(upAll.length>up.length?'<div class="row"><button data-a="more" data-k="r">⬇ আরও দেখুন (আরও ১২ সপ্তাহ)</button></div>':''):'<div class="sub">কিছু নেই</div>');
   if(hist.length)h+='<h2>আগের ডিউটি</h2><div class="wlist">'+hist.map(w=>weekCard(w,cur,out)).join('')+'</div>';
   const cn=counts(out,sp,cur),pn=id=>'<span class="ia">'+avt(id,22)+'<span data-a="prof" data-id="'+id+'" class="lk2">'+esc(fullnm(id))+'</span></span>',ro=ordIds('r');
   const rows=out.filter(w=>w.date>=R.from&&w.date<=R.to),srows=sp.filter(x=>x.date>=R.from&&x.date<=R.to);
-  h+='<h2>ডিউটির হিসাব</h2><div class="row" style="margin:0 0 8px"><button class="pri" data-a="xls">📥 এক্সেল (.xlsx) ডাউনলোড</button></div>'
+  h+='<h2>ডিউটির হিসাব</h2><div class="row" style="margin:0 0 8px"><button class="pri" data-a="xls">📥 এক্সেল (.xlsx) ডাউনলোড</button><button data-a="pdf">🖨 PDF/প্রিন্ট (ছবিসহ)</button></div>'
    +'<div class="sub">সময়কাল (এই ছক ও এক্সেল — যেকোনো তারিখ থেকে ২০৪০ পর্যন্ত দেওয়া যায়; ডিফল্ট: এ বছরের শুরু থেকে আগামী ১ বছর):</div><div class="g"><input type="date" id="exf" value="'+esc(R.from)+'"><input type="date" id="ext" value="'+esc(R.to)+'"></div>'
    +'<div class="card tw"><table><tr><th>ক্রম</th><th>নাম</th><th>সম্পন্ন (সপ্তাহ)</th><th>বিশেষ</th><th>দিন বেশি/কম</th><th>পরবর্তী রোস্টার</th></tr>'
    +ro.map((id,i)=>{const nx=out.find(w=>w.date>=cur&&w.duty===id);return '<tr><td>'+bn(i+1)+'</td><td>'+pn(id)+'</td><td>'+bn(cn[id].r)+'</td><td>'+bn(cn[id].s)+'</td><td>'+exTxt(cn[id])+'</td><td>'+(nx?fd(nx.date):'—')+(nx&&nx.date===cur?' (এই সপ্তাহ)':'')+'</td></tr>'}).join('')+'</table></div>'
@@ -311,12 +319,12 @@ function rosterTab(out,sp,cur){
    +srows.map((x,i)=>'<tr><td>'+bn(i+1)+'</td><td>'+fd(x.date)+'<br>'+wkdn(x.date)+'</td><td>'+esc(x.name)+'</td><td>'+(x.duty?pn(x.duty):'—')+'</td><td>'+(x.date<t?'✅ সম্পন্ন':x.date===t?'🔵 আজ':'🗓 নির্ধারিত')+'</td><td>'+(S.att[x.date]?'✅':'—')+'</td><td>'+((x.sk&&x.sk.length?esc(x.sk.map(fullnm).join(', '))+' অনুপস্থিত ('+esc(x.rs)+') — বদলি':'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'এডমিন নির্ধারিত':'')||'—')+'</td></tr>').join('')+'</table></div>';
   return h}
 function spTab(sp,cur){
-  const t=iso(new Date()),list=sp.filter(x=>x.date>=addD(t,-30)&&x.date<=addD(t,400)),upc=list.filter(z=>z.date>=t);
+  const t=iso(new Date()),upAllS=sp.filter(z=>z.date>=t),upc=upAllS.slice(0,ui.sN),list=sp.filter(x=>x.date<t&&x.date>=addD(t,-30)).concat(upc);
   let h='<h2>⭐ বিশেষ ডিউটি (সরকারি ছুটির দিন)</h2>'+(editor?'<div class="sub">শুক্র-শনিবার বাদে শুধু সরকারি ছুটির দিনের ডিউটি। সদস্যের ⚙ ঘরে "বিশেষ ডিউটি" টিক দিলে তিনি এখানে আসবেন।</div>':'');
   if(editor){h+='<div class="row"><button data-a="spot">🔀 বিশেষ ডিউটির ক্রম সাজান</button></div>';if(ui.sord)h+=ordList('sp')}
   h+='<div class="wlist">'+list.map(x=>'<div class="wk"><div class="wh">'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'')+'<div class="db"><b>'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+'</b><i>'+wkdn(x.date)+'</i></div><div class="wm">'+(x.duty?avt(x.duty,42)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+x.duty+'" class="lk2">'+esc(fullnm(x.duty))+'</span></div><div class="sub">'+esc(x.name)+'</div><div class="sub">'+spInfo(x,sp)+'</div></div>':'<div class="sub">'+esc(x.name)+' — কেউ নেই</div>')+'</div><div class="ws">'+(x.date<t?'<span class="chip c2">সম্পন্ন</span>':x.date===t?'<span class="chip c1">আজ</span>':'<span class="chip c3">নির্ধারিত</span>')+(!editor&&vcall()&&x.duty?'<div style="margin-top:4px;text-align:right">'+callBtn(x.duty,'📞','mini')+'</div>':'')+'</div></div>'
     +(x.sk&&x.sk.length?'<div class="note">🔁 <b>'+esc(x.sk.map(fullnm).join(', '))+'</b> অনুপস্থিত ('+esc(x.rs||'')+') — <b>'+esc(x.duty?fullnm(x.duty):'বদলি নেই')+'</b> ডিউটি করছেন</div>':'')+(x.ov?'<div class="note n2c">✍ এডমিন নির্ধারিত</div>':'')+(S.att[x.date]?'<div class="sent">✅ উপস্থিত হয়ে ডিউটি করেছেন (এডমিন নিশ্চিত)</div>':'')+(S.spsent[x.date]?'<div class="sent">✓ মেসেজ পাঠানো হয়েছে ('+esc(S.spsent[x.date])+')</div>':'')
-    +(editor&&x.duty?'<div class="row"><button class="wa" data-a="wa" data-u="'+esc(waUrl(x.duty,msgSp(x)))+'" data-m="'+esc('আপনি কি '+fullnm(x.duty)+'-কে '+fd(x.date)+' তারিখের বিশেষ ডিউটি জানাতে চান?')+'">WhatsApp-এ পাঠাও</button>'+callBtn(x.duty)+'<button data-a="spsent" data-d="'+x.date+'">✓ পাঠানো</button><button data-a="spdlg" data-d="'+x.date+'">🔁 ব্যক্তি বদলান</button><button data-a="att" data-d="'+x.date+'">'+(S.att[x.date]?'↩ উপস্থিতি বাতিল':'☑ উপস্থিত হয়ে ডিউটি করেছেন')+'</button></div>':'')+'</div>').join('')+'</div>'+(list.length?'':'<div class="sub" style="margin-top:8px">কোনো বিশেষ ডিউটি নেই।'+(editor?' ক্যালেন্ডারে সরকারি ছুটি যোগ করুন ও সদস্যদের "বিশেষ ডিউটি" টিক দিন।':'')+'</div>');
+    +(editor&&x.duty?'<div class="row"><button class="wa" data-a="wa" data-u="'+esc(waUrl(x.duty,msgSp(x)))+'" data-m="'+esc('আপনি কি '+fullnm(x.duty)+'-কে '+fd(x.date)+' তারিখের বিশেষ ডিউটি জানাতে চান?')+'">WhatsApp-এ পাঠাও</button>'+callBtn(x.duty)+'<button data-a="spsent" data-d="'+x.date+'">✓ পাঠানো</button><button data-a="spdlg" data-d="'+x.date+'">🔁 ব্যক্তি বদলান</button><button data-a="att" data-d="'+x.date+'">'+(S.att[x.date]?'↩ উপস্থিতি বাতিল':'☑ উপস্থিত হয়ে ডিউটি করেছেন')+'</button></div>':'')+'</div>').join('')+'</div>'+(upAllS.length>upc.length?'<div class="row"><button data-a="more" data-k="s">⬇ আরও দেখুন (আরও ১২টি)</button></div>':'')+(list.length?'':'<div class="sub" style="margin-top:8px">কোনো বিশেষ ডিউটি নেই।'+(editor?' ক্যালেন্ডারে সরকারি ছুটি যোগ করুন ও সদস্যদের "বিশেষ ডিউটি" টিক দিন।':'')+'</div>');
   return h}
 function calHtml(out,sp){
   const y=ui.cm.y,m=ui.cm.m,first=new Date(y,m,1),dim=new Date(y,m+1,0).getDate(),off=first.getDay(),tdy=iso(new Date());
@@ -344,7 +352,7 @@ function leaveTab(out,sp){
   const y=ui.lyear,ls=(S.leaves||[]).slice().sort((a,b)=>a.from<b.from?1:-1),ps=memIds().map(P);
   let h='<h2>🏖 ছুটির হিসাব</h2>';
   if(editor)h+='<div class="card"><b>নতুন ছুটি যোগ করুন</b><select id="lp" class="fw">'+ps.map(p=>'<option value="'+p.id+'">'+esc(fullnm(p.id))+'</option>').join('')+'</select><select id="lt" class="fw">'+LT.map(t=>'<option>'+t+'</option>').join('')+'</select><div class="g"><input type="date" id="lf"><input type="date" id="le"></div><input id="ln" class="fw" placeholder="মন্তব্য (ঐচ্ছিক)"><div class="row"><button class="pri" data-a="ladd">+ ছুটি যোগ করুন</button></div><div class="sub">শুরুর ও শেষের তারিখ দিন। ছুটির মধ্যে রোস্টার পড়লে নিচে দেখাবে কে ডিউটি করবে তা বাছতে।</div></div>';
-  h+='<div class="row"><b>বছর:</b><select data-a="ly">'+[y-1,y,y+1].map(v=>'<option value="'+v+'"'+(v===y?' selected':'')+'>'+bn(v)+'</option>').join('')+'</select><button class="pri" data-a="xls">📥 এক্সেল (.xlsx)</button></div>';
+  h+='<div class="row"><b>বছর:</b><select data-a="ly">'+[y-1,y,y+1].map(v=>'<option value="'+v+'"'+(v===y?' selected':'')+'>'+bn(v)+'</option>').join('')+'</select><button class="pri" data-a="xls">📥 এক্সেল (.xlsx)</button><button data-a="pdf">🖨 PDF/প্রিন্ট</button></div>';
   h+='<div class="card tw"><table><tr><th>নাম</th>'+LT.map(t=>'<th>'+t+'</th>').join('')+'<th>মোট</th></tr>'+ps.map(p=>{const c={};LT.forEach(t=>c[t]=0);(S.leaves||[]).filter(l=>l.pid===p.id).forEach(l=>{c[l.type]=(c[l.type]||0)+ovDays(l,y)});const tot=LT.reduce((a,t)=>a+c[t],0);return '<tr><td><span class="ia">'+avt(p.id,22)+'<span data-a="prof" data-id="'+p.id+'" class="lk2">'+esc(fullnm(p.id))+'</span></span></td>'+LT.map(t=>'<td>'+bn(c[t])+'</td>').join('')+'<td><b>'+bn(tot)+'</b></td></tr>'}).join('')+'</table></div>';
   h+=prioHtml()+'<h2>ছুটির তালিকা</h2><div class="wlist">'+(ls.map(l=>{const imp=leaveImpact(l,out,sp);
     return '<div class="wk"><div class="wh"><div class="wm">'+avt(l.pid,40)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+l.pid+'" class="lk2">'+esc(fullnm(l.pid))+'</span></div><div class="sub">'+fd(l.from)+' – '+fd(l.to)+' ('+bn(days(l.from,l.to))+' দিন)'+(l.note?' · '+esc(l.note):'')+'</div></div></div><div class="ws"><span class="chip c3">'+esc(l.type)+'</span></div></div>'
@@ -354,7 +362,7 @@ function leaveTab(out,sp){
 function memTab(out,sp,cur){
   const ids=memIds(),cn=counts(out,sp,cur),y=new Date().getFullYear();
   let h='<h2>কর্মরত সকল সদস্য</h2>';
-  if(editor)return h+'<div class="sub">⠿ ধরে টেনে বা ▲▼ চেপে ক্রম সাজান — সবাই এই ক্রমেই দেখবে, এক্সেলেও এই ক্রম আসবে।</div>'+ordList('mem');
+  if(editor){h+='<div class="row"><button data-a="mordt">'+(ui.mord?'✔ সাজানো শেষ':'🔀 ক্রম সাজান (ড্র্যাগ)')+'</button></div>';if(ui.mord)return h+'<div class="sub">⠿ ধরে টেনে বা ▲▼ চেপে ক্রম সাজান — সবাই এই ক্রমেই দেখবে, এক্সেলেও এই ক্রম আসবে।</div>'+ordList('mem')}
   return h+'<div class="wlist">'+ids.map((id,ix)=>{const p=P(id),on=elig(p,cur)||elig(p,nextF());
     return '<div class="card mc" data-a="prof" data-id="'+id+'"><div class="ser">'+bn(ix+1)+'</div>'+avt(id,52)+'<div style="flex:1"><div class="n1">'+esc(fullnm(id))+tg(id)+'</div>'+(p.role?'<div style="font-size:13px">'+esc(p.role)+'</div>':'')+'<div class="sub">'+(p.bp?'বিপি-'+esc(p.bp):'বিপি নম্বর নেই')+(p.sup?' · তদারকি: '+esc(p.sup):'')+'</div></div><div class="tc">'+(on?'<span class="tag">রোস্টার</span>':'')+(p.sp?'<span class="tag">বিশেষ</span>':'')+'</div></div>'}).join('')+'</div>'}
 function personForm(p,i){
@@ -406,7 +414,7 @@ function render(){
   freezeSp();
   const cur=curFri(),out=sim(),sp=simSp();
   const ctl=editor?'<div class="row"><button data-a="set">'+(ui.showSet?'বন্ধ করো':'⚙ সদস্য ও সেটিংস')+'</button><button data-a="mdlg">✍ ম্যানুয়াল এন্ট্রি</button></div>':'';
-  const m=(editor&&ui.showSet?settingsHtml():'')+(ui.tab==='r'?rosterTab(out,sp,cur):ui.tab==='s'?spTab(sp,cur):ui.tab==='c'?calHtml(out,sp):ui.tab==='l'?leaveTab(out,sp):memTab(out,sp,cur));
+  const m=(editor&&ui.showSet?settingsHtml():'')+(ui.tab==='h'?homeTab(out,sp,cur):ui.tab==='r'?rosterTab(out,sp,cur):ui.tab==='s'?spTab(sp,cur):ui.tab==='c'?calHtml(out,sp):ui.tab==='l'?leaveTab(out,sp):memTab(out,sp,cur));
   $('app').innerHTML='<div class="colL"><div class="a-ban">'+banner()+'</div><div class="a-nt">'+tickerHtml()+noticeHtml()+'</div><div class="a-hero">'+heroHtml(out,sp)+ctl+'</div></div><div class="colR"><div class="a-tabs">'+tabsHtml()+'</div><div class="a-main">'+m+'</div></div><div class="a-ft">'+adminBar()+'</div>'+dlgHtml();tick();wxShow();
 }
 let lastDay=iso(new Date());
@@ -467,6 +475,7 @@ document.addEventListener('click',e=>{
     tkt(){ui.tkset=!ui.tkset;render()},
     tkc(){S.tk=S.tk||{};if($('tkon')){S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim()}S.tk.color=b.dataset.c;save()},
     tksv(){S.tk=S.tk||{};S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim();S.tk.color=$('tkcol').value;ui.tkset=false;save()},
+    more(){if(b.dataset.k==='r')ui.rN+=12;else ui.sN+=12;render()},mordt(){ui.mord=!ui.mord;render()},pdf(){printStatement()},
     xls(){dlXlsx()},
     login(){ui.lerr='';ui.dlg={k:'login'};render()},
     lgo(){auth.signInWithEmailAndPassword($('lem').value.trim(),$('lpw').value).then(()=>{ui.dlg=null;render()}).catch(()=>{ui.lerr='ইমেইল বা পাসওয়ার্ড ভুল';render()})},
@@ -572,7 +581,7 @@ function makeXlsx(){
       files.push({name:'xl/worksheets/_rels/sheet'+n+'.xml.rels',data:U(X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing'+dn+'.xml"/></Relationships>')});
       let dx=X+'<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">',dr=X+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
       pics.forEach((x,k)=>{const rid='rId'+(k+1);dr+='<Relationship Id="'+rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/'+x.m+'"/>';
-        dx+='<xdr:twoCellAnchor editAs="oneCell"><xdr:from><xdr:col>'+x.o.c+'</xdr:col><xdr:colOff>57150</xdr:colOff><xdr:row>'+x.o.r+'</xdr:row><xdr:rowOff>38100</xdr:rowOff></xdr:from><xdr:to><xdr:col>'+x.o.c+'</xdr:col><xdr:colOff>400050</xdr:colOff><xdr:row>'+x.o.r+'</xdr:row><xdr:rowOff>466725</xdr:rowOff></xdr:to><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="'+(k+2)+'" name="Photo '+(k+1)+'"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="342900" cy="428625"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:twoCellAnchor>'});
+        dx+='<xdr:twoCellAnchor editAs="oneCell"><xdr:from><xdr:col>'+x.o.c+'</xdr:col><xdr:colOff>57150</xdr:colOff><xdr:row>'+x.o.r+'</xdr:row><xdr:rowOff>38100</xdr:rowOff></xdr:from><xdr:to><xdr:col>'+x.o.c+'</xdr:col><xdr:colOff>400050</xdr:colOff><xdr:row>'+x.o.r+'</xdr:row><xdr:rowOff>466725</xdr:rowOff></xdr:to><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="'+(k+2)+'" name="Photo '+(k+1)+'" descr="photo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="342900" cy="428625"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:twoCellAnchor>'});
       files.push({name:'xl/drawings/drawing'+dn+'.xml',data:U(dx+'</xdr:wsDr>')});files.push({name:'xl/drawings/_rels/drawing'+dn+'.xml.rels',data:U(dr+'</Relationships>')})}});
   wbr+='<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
   const fnt=(b,sz,c)=>'<font>'+(b?'<b/>':'')+'<sz val="'+sz+'"/>'+(c?'<color rgb="'+c+'"/>':'')+'<name val="Nirmala UI"/></font>',bd='<border><left style="thin"><color rgb="FFB8C0D0"/></left><right style="thin"><color rgb="FFB8C0D0"/></right><top style="thin"><color rgb="FFB8C0D0"/></top><bottom style="thin"><color rgb="FFB8C0D0"/></bottom><diagonal/></border>';
@@ -584,6 +593,18 @@ function makeXlsx(){
   media.forEach(m=>files.push({name:'xl/media/'+m.name,data:m.data}));
   const ctf=files.find(f=>f.name==='[Content_Types].xml');files.splice(files.indexOf(ctf),1);files.unshift(ctf);
   return zipBlob(files)}
+const _pu={};
+function photoUrl(id){const p=P(id)||{};if(p.photo)return p.photo;const k=p.g||'u';if(!_pu[k]){const b=iconPng(p.g);let s='';for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);_pu[k]='data:image/png;base64,'+btoa(s)}return _pu[k]}
+function sheetsToHtml(sheets){
+  let h='<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>স্টেটমেন্ট</title><style>@page{size:A4 landscape;margin:10mm}body{font-family:"Noto Sans Bengali","Nirmala UI",sans-serif;font-size:11px;color:#111}h1{font-size:17px;color:#1e3a8a;margin:0 0 2px}.t2{color:#555;margin:0 0 2px}table{border-collapse:collapse;width:100%;margin:6px 0 14px}tr{page-break-inside:avoid}th,td{border:1px solid #b8c0d0;padding:3px 5px;text-align:left;vertical-align:middle}th{background:#1e3a8a;color:#fff}img{width:28px;height:35px;object-fit:cover;border-radius:3px;display:block}.sec{page-break-before:always}b.s5{display:block;margin:8px 0 2px;color:#1e3a8a}</style></head><body>';
+  sheets.forEach((sh,si)=>{const im={};(sh.imgs||[]).forEach(o=>{im[o.r+'_'+o.c]=o.pid});let open=false;h+='<div'+(si?' class="sec"':'')+'>';
+    sh.rows.forEach((r,ri)=>{const c=r.c;if(!c.length){if(open){h+='</table>';open=false}return}
+      if(c.length===1&&typeof c[0]==='object'&&(c[0].s===1||c[0].s===6||c[0].s===5)){if(open){h+='</table>';open=false}h+=c[0].s===1?'<h1>'+xe(c[0].v)+'</h1>':c[0].s===5?'<b class="s5">'+xe(c[0].v)+'</b>':'<div class="t2">'+xe(c[0].v)+'</div>';return}
+      if(!open){h+='<table>';open=true}
+      const isH=c.every(x=>x&&x.s===2);h+='<tr>'+c.map((x,ci)=>{const pid=im[ri+'_'+ci],v=x&&typeof x==='object'?x.v:x;return (isH?'<th>':'<td>')+(pid?'<img src="'+photoUrl(pid)+'">':xe(v==null?'':v))+(isH?'</th>':'</td>')}).join('')+'</tr>'});
+    if(open)h+='</table>';h+='</div>'});
+  return h+'</body></html>'}
+function printStatement(){try{const html=sheetsToHtml(buildSheets()),f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);const d=f.contentWindow.document;d.open();d.write(html);d.close();setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){alert('প্রিন্ট খোলেনি: '+e.message)}},700);setTimeout(()=>f.remove(),120000)}catch(e){alert('তৈরি হয়নি: '+e.message)}}
 function dlXlsx(){try{const b=makeXlsx(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='roster-statement-'+iso(new Date())+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}catch(e){alert('এক্সেল তৈরি হয়নি: '+e.message)}}
 let wxD=null;
 const WXI=c=>c===0?'☀️':c<=2?'🌤':c===3?'☁️':c<=48?'🌫':c<=67?'🌧':c<=77?'❄️':c<=82?'🌦':'⛈';
