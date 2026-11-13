@@ -136,7 +136,7 @@ const RS=['ছুটি','অসুস্থতা','প্রশিক্ষণ
 const DEFHOL={'2026-12-16':'বিজয় দিবস','2026-12-25':'বড়দিন','2027-02-21':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','2027-03-26':'স্বাধীনতা দিবস','2027-04-14':'পহেলা বৈশাখ','2027-05-01':'মে দিবস','2027-08-05':'গণঅভ্যুত্থান দিবস','2027-12-16':'বিজয় দিবস','2027-12-25':'বড়দিন'};
 let S=JSON.parse($('data').textContent);
 let editor=false,adminEmail='',db=null,auth=null;
-const ui={tab:'h',rN:null,sN:null,hN:null,shN:null,tAll:false,bc:null,ld:null,lc:null,xw:{},xs:{},mord:false,open:null,showSet:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
+const ui={tab:'h',rN:null,sN:null,hN:null,shN:null,lvl:false,lvh:false,lmShow:false,tAll:false,bc:null,ld:null,lc:null,xw:{},xs:{},mord:false,open:null,showSet:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
 function norm(){
   const d={status:{},sub:{},tpl:{},manual:{},absent:{},absr:{},att:{},sent:{},notices:[],leaves:[],spov:{},spsent:{},orders:[],sporder:[],morder:[],lvm:[],day:{},spfix:{},tk:{on:true,text:'',color:'#1e3a8a'}};
   for(const k in d)if(!S[k])S[k]=d[k];
@@ -153,7 +153,7 @@ function setDuty(p,on){p.hist=(p.hist||[]).filter(h=>h.d!==nextF());p.hist.push(
 const rk=id=>{const p=P(id)||{};return (p.des||'')+(p.rn?'/'+bn(p.rn):'')};
 const bpf=id=>{const p=P(id);return p&&p.bp?'বিপি-'+p.bp:''};
 const fullnm=id=>((rk(id)?rk(id)+' ':'')+((P(id)||{}).name||'')).trim();
-const ico=p=>p.g==='f'?'👩':p.g==='m'?'👨':'👤';
+const ico=p=>p.g==='f'?'👮‍♀️':p.g==='m'?'👮‍♂️':'👤';
 function avt(id,sz){const p=P(id)||{};sz=sz||34;const st='width:'+sz+'px;height:'+sz+'px;border-radius:50%;flex:none;';return p.photo?'<img src="'+p.photo+'" style="'+st+'object-fit:cover;border:2px solid var(--bd)">':'<div style="'+st+'background:var(--acbg);display:flex;align-items:center;justify-content:center;font-size:'+Math.round(sz*.55)+'px">'+ico(p)+'</div>'}
 const tg=id=>{const p=P(id);return p&&p.sr?' <span class="tag">সিনিয়র</span>':''};
 function ordAt(d){let v=null;(S.orders||[]).forEach(o=>{if(o.from<=d)v=o});const b=v?v.ids.filter(id=>P(id)):[];return b.concat(S.people.map(p=>p.id).filter(id=>!b.includes(id)))}
@@ -253,7 +253,7 @@ const lim=k=>ui[MLP[k]]!=null?ui[MLP[k]]:initN(k);
 const retDate=l=>addD(lspans(l).reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),1);
 
 function banner(){return '<div class="ban"><div class="wx" id="wx"></div><div class="bis">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><img class="lg" src="'+LOGO+'" alt="লোগো"><div class="o">পুলিশ হেডকোয়ার্টার্স</div><div class="b">কেন্দ্রীয় ডেসপাচ শাখা</div><div class="m">✉️ চিঠিপত্র গ্রহণ ও বিতরণ</div><div class="r">রোস্টার ডিউটি ও ছুটির হিসাব</div><div class="ck" id="clk"></div></div><div class="sub" style="text-align:center;margin:6px 0 2px">প্রতি শুক্র–শনিবার রোস্টার ডিউটি, বিশেষ ডিউটি রোস্টার এবং ছুটির হিসাব</div>'}
-function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=cur&&w.duty),ns=sp.find(x=>x.date>=t&&x.duty);
+function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=upStart()&&w.duty),ns=sp.find(x=>x.date>=t&&x.duty);
   const opt=(tb,ic,ti,sb)=>'<button class="opt" data-a="tab" data-t="'+tb+'"><span class="oi">'+ic+'</span><span class="ot">'+ti+'</span><span class="os">'+(sb||'')+'</span></button>';
   return (editor?'<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button data-a="bc">✉ জরুরি মেসেজ পাঠান</button></div>':'')+'<h2>কী দেখতে চান?</h2><div class="opts">'+opt('r','📋','রোস্টার ডিউটির তালিকা',nw?'পরবর্তী: '+esc(fullnm(nw.duty)):'')+opt('s','⭐','বিশেষ ডিউটির তালিকা',ns?esc(fullnm(ns.duty))+' — '+fd(ns.date):'কোনো বিশেষ ডিউটি নেই')+'</div><div class="opts opts3">'+opt('c','📅','ক্যালেন্ডার','')+opt('l','🏖','ছুটির হিসাব','')+opt('m','👥','সদস্য','')+'</div>'}
 function tabsHtml(){return '<div class="tabs">'+[['h','🏠','হোম'],['r','📋','রোস্টার'],['s','⭐','বিশেষ'],['c','📅','ক্যালেন্ডার'],['l','🏖','ছুটি'],['m','👥','সদস্য']].map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join('')+'</div>'}
@@ -389,6 +389,9 @@ function lvFormHtml(){const d=ui.ld||{},ps=memIds().map(P),isC=d.type==='CL+PL',
    +'<div class="sub" id="lbl1">'+(isC?'CL-এর শুরু ও শেষের তারিখ:':'ছুটির শুরু ও শেষের তারিখ:')+'</div><div class="g"><input type="date" id="lf" value="'+esc(d.f||'')+'"><input type="date" id="le" value="'+esc(d.e||'')+'"></div><div class="row" style="margin-top:2px"><button data-a="lcal" data-t="1" class="mini">📅 ক্যালেন্ডার থেকে বাছুন</button></div>'
    +'<div id="plrow" style="display:'+(isC?'block':'none')+'"><div class="sub">PL-এর শুরু ও শেষের তারিখ:</div><div class="g"><input type="date" id="lpf" value="'+esc(d.pf||'')+'"><input type="date" id="lpe" value="'+esc(d.pe||'')+'"></div><div class="row" style="margin-top:2px"><button data-a="lcal" data-t="2" class="mini">📅 PL-এর তারিখ ক্যালেন্ডার থেকে বাছুন</button></div></div>'
    +'<input id="ln" class="fw" placeholder="মন্তব্য (ঐচ্ছিক)" value="'+esc(d.note||'')+'"><div class="row"><button class="pri" data-a="ladd">+ ছুটি যোগ করুন</button><button data-a="lmdlg">✍ ম্যানুয়ালি ছুটি এন্ট্রি</button></div><div class="sub">CL বছরে '+bn(CLQ())+' দিন পাওনা — CL ছুটি দিলে এখান থেকে কাটা যাবে।</div></div>'}
+function leaveCard(l,out,sp){const imp=leaveImpact(l,out,sp);
+    return '<div class="wk"><div class="wh"><div class="wm">'+avt(l.pid,40)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+l.pid+'" class="lk2">'+esc(fullnm(l.pid))+'</span></div><div class="sub">'+lvText(l)+(l.note?' · '+esc(l.note):'')+'<br><b>কর্মস্থলে হাজির: '+fd(retDate(l))+' (দুপুর ১২টার আগে)</b></div></div></div><div class="ws"><span class="chip c3">'+esc(l.type)+'</span></div></div>'
+     +leaveNote(l,imp)+(editor?'<div class="row"><button data-a="led" data-id="'+l.id+'" class="mini">✎ এডিট</button><button data-a="lrm" data-id="'+l.id+'" class="mini">🗑 মুছুন</button></div>':'')+'</div>'}
 function leaveTab(out,sp){
   const y=ui.lyear,ls=(S.leaves||[]).slice().sort((a,b)=>a.from<b.from?1:-1),ps=memIds().map(P),tn=iso(new Date()),q=CLQ();
   const nowL=(S.leaves||[]).filter(l=>lvOverlap(l,tn,tn)&&P(l.pid)&&!P(l.pid).gone);
@@ -396,10 +399,11 @@ function leaveTab(out,sp){
   if(editor)h+=lvFormHtml();
   h+='<div class="row"><b>বছর:</b><select data-a="ly">'+[y-1,y,y+1].map(v=>'<option value="'+v+'"'+(v===y?' selected':'')+'>'+bn(v)+'</option>').join('')+'</select><button class="pri" data-a="xls">📥 এক্সেল (.xlsx)</button><button data-a="pdf">🖨 PDF/প্রিন্ট</button></div>';
   h+='<div class="sub">CL (Casual Leave) প্রতি সদস্যের বছরে '+bn(q)+' দিন পাওনা। অন্য ছুটির নির্দিষ্ট সংখ্যা নেই।</div><div class="card tw"><table><tr><th>নাম</th><th>CL পাওনা</th><th>CL ভোগ</th><th>CL বাকি</th>'+LT.map(t=>'<th>'+(t==='CL+PL'?'CL+PL (যুক্ত)':t)+'</th>').join('')+'<th>মোট ভোগ</th></tr>'+ps.map(p=>{const st=lvStat(p.id,y);return '<tr><td><span class="ia">'+avt(p.id,22)+'<span data-a="prof" data-id="'+p.id+'" class="lk2">'+esc(fullnm(p.id))+'</span></span></td><td>'+bn(q)+'</td><td>'+bn(st.clU)+'</td><td><b'+(st.clRem<0?' style="color:#b91c1c"':'')+'>'+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</b></td>'+LT.map(t=>'<td>'+bn(st.c[t]||0)+'</td>').join('')+'<td><b>'+bn(st.tot)+'</b></td></tr>'}).join('')+'</table></div>';
-  h+=prioHtml()+'<h2>ছুটির তালিকা</h2><div class="wlist">'+(ls.map(l=>{const imp=leaveImpact(l,out,sp);
-    return '<div class="wk"><div class="wh"><div class="wm">'+avt(l.pid,40)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+l.pid+'" class="lk2">'+esc(fullnm(l.pid))+'</span></div><div class="sub">'+lvText(l)+(l.note?' · '+esc(l.note):'')+'<br><b>কর্মস্থলে হাজির: '+fd(retDate(l))+' (দুপুর ১২টার আগে)</b></div></div></div><div class="ws"><span class="chip c3">'+esc(l.type)+'</span></div></div>'
-     +leaveNote(l,imp)+(editor?'<div class="row"><button data-a="led" data-id="'+l.id+'" class="mini">✎ এডিট</button><button data-a="lrm" data-id="'+l.id+'" class="mini">🗑 মুছুন</button></div>':'')+'</div>'}).join('')||'<div class="sub">কোনো ছুটি যোগ করা হয়নি</div>')+'</div>';
-  if(editor){const lm=(S.lvm||[]).filter(m=>m.year===y);h+='<h2>ম্যানুয়াল এন্ট্রি ('+bn(y)+')</h2>'+(lm.length?lm.map(m=>'<div class="note n2c"><span class="ia">'+avt(m.pid,22)+'<b>'+esc(fullnm(m.pid))+'</b></span> — '+esc(m.type)+' · '+bn(m.days)+' দিন'+(m.note?' · '+esc(m.note):'')+' <b data-a="lmed" data-id="'+m.id+'" class="lk">✎ এডিট</b> <b data-a="lmrm" data-id="'+m.id+'" class="lk">✕ মুছুন</b></div>').join(''):'<div class="sub">কোনো ম্যানুয়াল এন্ট্রি নেই</div>')}
+  const endOf=l=>lspans(l).reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),act=ls.filter(l=>endOf(l)>=tn),ended=ls.filter(l=>endOf(l)<tn);
+  h+=prioHtml()+'<div class="row"><button data-a="lvt"'+(ui.lvl?' class="pri"':'')+'>📋 ছুটির তালিকা '+(ui.lvl?'লুকান':'দেখুন')+' ('+bn(act.length)+')</button><button data-a="lvht">🕘 ছুটির ইতিহাস '+(ui.lvh?'লুকান':'দেখুন')+' ('+bn(ended.length)+')</button>'+(editor?'<button data-a="lmt">✍ ম্যানুয়াল এন্ট্রির তালিকা '+bn(y)+' '+(ui.lmShow?'লুকান':'দেখুন')+'</button>':'')+'</div>';
+  if(ui.lvl)h+='<div class="wlist">'+(act.map(l=>leaveCard(l,out,sp)).join('')||'<div class="sub">চলমান বা আসন্ন কোনো ছুটি নেই</div>')+'</div>';
+  if(ui.lvh)h+='<div class="wlist">'+(ended.map(l=>'<div class="cr">'+avt(l.pid,26)+'<div class="cnm">'+esc(fullnm(l.pid))+'</div><span class="chip c3">'+esc(l.type)+'</span><span class="sub">'+fd(l.from)+' – '+fd(l.to)+'</span>'+(editor?'<button data-a="led" data-id="'+l.id+'" class="mini">✎</button><button data-a="lrm" data-id="'+l.id+'" class="mini">🗑</button>':'')+'</div>').join('')||'<div class="sub">কোনো ছুটির ইতিহাস নেই</div>')+'</div>';
+  if(editor&&ui.lmShow){const lm=(S.lvm||[]).filter(m=>m.year===y);h+='<h2>ম্যানুয়াল এন্ট্রি ('+bn(y)+')</h2>'+(lm.length?lm.map(m=>'<div class="note n2c"><span class="ia">'+avt(m.pid,22)+'<b>'+esc(fullnm(m.pid))+'</b></span> — '+esc(m.type)+' · '+bn(m.days)+' দিন'+(m.note?' · '+esc(m.note):'')+' <b data-a="lmed" data-id="'+m.id+'" class="lk">✎ এডিট</b> <b data-a="lmrm" data-id="'+m.id+'" class="lk">✕ মুছুন</b></div>').join(''):'<div class="sub">কোনো ম্যানুয়াল এন্ট্রি নেই</div>')}
   return h}
 function memTab(out,sp,cur){
   const ids=memIds(),cn=counts(out,sp,cur),y=new Date().getFullYear();
@@ -424,7 +428,7 @@ function settingsHtml(){
 
 function adminBar(){
   let h='<div class="row" style="justify-content:center;margin:22px 0 4px">'+(!db?'<span class="sub">Firebase কনফিগ বসানো হয়নি (শুধু দেখার মোড)</span>':editor?'<span class="sub">অ্যাডমিন: '+esc(adminEmail)+'</span><button data-a="logout">লগআউট</button>':'<button data-a="login">🔐 অ্যাডমিন লগইন</button>')+'</div>';
-  return h+'<div class="ft">০৬/১১/২০২৬ খ্রীঃ থেকে কার্যকর<br>© সর্বস্বত্ব সংরক্ষিত — aruhul257@gmail.com</div>'}
+  return h+(('wakeLock' in navigator)?'<div class="row" style="justify-content:center;margin:4px 0"><label class="sub"><input type="checkbox" id="wlt"'+(wlWant()?' checked':'')+' style="width:auto"> ☀ স্ক্রিন চালু রাখুন (বন্ধ হবে না)</label></div>':'')+'<div class="ft">০৬/১১/২০২৬ খ্রীঃ থেকে কার্যকর<br>© সর্বস্বত্ব সংরক্ষিত — aruhul257@gmail.com</div>'}
 function dlgHtml(){
   const g=ui.dlg;if(!g)return '';let b='';
   const yn=(y,n)=>'<div class="row" style="justify-content:center"><button class="pri" data-a="'+y[0]+'">'+y[1]+'</button><button data-a="'+n[0]+'">'+n[1]+'</button></div>';
@@ -441,13 +445,13 @@ function dlgHtml(){
     const ln=(a,v)=>v?'<div class="pl"><span class="sub">'+a+'</span><span style="text-align:right">'+esc(v)+'</span></div>':'';
     let sv='';if(p.join){const j=pd(p.join),n=new Date();let m=(n.getFullYear()-j.getFullYear())*12+n.getMonth()-j.getMonth();if(n.getDate()<j.getDate())m--;if(m>=0)sv=bn(Math.floor(m/12))+' বছর '+bn(m%12)+' মাস'}
     const stt=lvStat(g.id,y),lv=stt.c,lvt=stt.tot;
-    const nr=out.filter(w=>w.date>=cur&&w.duty===g.id).slice(0,3).map(w=>fd(w.date)).join(', '),lr=out.slice().reverse().find(w=>w.date<cur&&w.duty===g.id),ns=sp.filter(x=>x.date>=td&&x.duty===g.id).slice(0,2).map(x=>fd(x.date)+' ('+x.name+')').join(', ');
+    const nr=out.filter(w=>w.date>=upStart()&&w.duty===g.id).slice(0,1).map(w=>fd(w.date)).join(', '),lr=out.slice().reverse().find(w=>w.date<cur&&w.duty===g.id),ns=sp.filter(x=>x.date>=td&&x.duty===g.id).slice(0,1).map(x=>fd(x.date)+' ('+x.name+')').join(', ');
     b=(p.photo?'<img src="'+p.photo+'" class="pp">':'<div class="pp" style="display:flex;align-items:center;justify-content:center;background:var(--acbg);font-size:52px">'+ico(p)+'</div>')+'<div class="dt" style="margin:8px 0">'+esc(p.name||'')+tg(g.id)+'</div>'
      +ln('পদবী',rk(g.id))+ln('কাজ / দায়িত্ব',p.role)+ln('বিপি নম্বর',p.bp)+ln('লিঙ্গ',p.g==='m'?'👨 পুরুষ':p.g==='f'?'👩 মহিলা':'নির্ধারিত নয়')+ln('শাখায় যোগদান',p.join?fd(p.join):'')+ln('শাখায় সময়',sv)+ln('তদারকি অফিসার',p.sup)+(vcall()?ln('মোবাইল',p.phone):'')
      +ln('রোস্টারে আছেন',elig(p,cur)||elig(p,nextF())?'হ্যাঁ':'না')+ln('বিশেষ ডিউটি তালিকায়',p.sp?'হ্যাঁ':'না')
      +ln('রোস্টার ডিউটি সম্পন্ন',bn(c.r)+' সপ্তাহ')+ln('দিন বেশি/কম',exTxt(c))+ln('শেষ রোস্টার ডিউটি',lr?fd(lr.date):'')+ln('পরবর্তী রোস্টার',nr)+ln('বিশেষ ডিউটি সম্পন্ন',bn(c.s)+' বার')+ln('পরবর্তী বিশেষ ডিউটি',ns)
      +ln('CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)','ভোগ '+bn(stt.clU)+' · বাকি '+(stt.clRem<0?'−'+bn(-stt.clRem)+' (বেশি)':bn(stt.clRem)))+ln(bn(y)+' সালে ছুটি','মোট '+bn(lvt)+' দিন'+(lvt?' ('+LT.filter(t=>lv[t]).map(t=>t+' '+bn(lv[t])).join(', ')+')':''))+(function(){const L=leaveStats(),ri=L.findIndex(x=>x.id===g.id),st=L[ri];return ln('শেষ ছুটি',stTxt(st))+ln('ছুটিতে অগ্রাধিকার','ক্রম '+bn(ri+1)+(ri<3&&!st.now?' ⭐ বেশি অগ্রাধিকার':''))})()
-     +'<div class="row" style="justify-content:center">'+(vcall()?callBtn(g.id):'')+'<button data-a="dno">বন্ধ</button></div>'}
+     +'<div class="row" style="justify-content:center">'+(vcall()?callBtn(g.id):'')+'<button data-a="pprint" data-id="'+g.id+'">🖨 প্রিন্ট</button><button data-a="dno">বন্ধ</button></div>'}
   else if(g.k==='day'){const wk=pd(g.d).getDay()===5?g.d:addD(g.d,-1),w=sim().find(x=>x.date===wk);if(!w)return '';const X=w.duty,fr=g.d===wk,o=S.day[g.d]||{};
     b='<div class="ic">↔</div><div class="dt">শুধু '+(fr?'শুক্রবার':'শনিবার')+' ('+fd(g.d)+') বদলি</div><div class="sub">নির্ধারিত: '+esc(fullnm(X))+'</div><div class="sub" style="text-align:left">কারণ</div><select id="drsn" class="fw">'+RS.map(r=>'<option'+(o.reason===r?' selected':'')+'>'+r+'</option>').join('')+'</select><input id="dnote" class="fw" placeholder="মন্তব্য (ঐচ্ছিক)" value="'+esc(o.note||'')+'"><div class="sub" style="text-align:left">ওই দিন কে ডিউটি করবেন?</div><select id="dsub" class="fw">'+S.people.filter(p=>!p.gone&&p.id!==X).map(p=>'<option value="'+p.id+'"'+(o.id===p.id?' selected':'')+'>'+esc(fullnm(p.id))+'</option>').join('')+'</select><div class="sub">শুধু ওই একদিনের জন্য মেসেজ যাবে। দিন বেশি/কম এক্সেলে ও হিসাবে দেখাবে।</div>'+yn(['dayyes','নিশ্চিত করুন'],['dno','বাতিল'])}
   else if(g.k==='lm'){const m=g.id&&(S.lvm||[]).find(x=>x.id===g.id)||{};b='<div class="ic">✍</div><div class="dt">ম্যানুয়ালি ছুটি এন্ট্রি'+(g.id?' (এডিট)':'')+'</div><div class="sub">আগে ভোগ করা ছুটি, যার তারিখ নেই — শুধু দিন সংখ্যা দিন</div><select id="lmp" class="fw">'+memIds().map(i=>'<option value="'+i+'"'+(m.pid===i?' selected':'')+'>'+esc(fullnm(i))+'</option>').join('')+'</select><div class="g"><input id="lmy" type="number" value="'+(m.year||ui.lyear)+'" placeholder="বছর"><select id="lmt">'+['CL','PL','LAP','RRL'].map(x=>'<option'+(m.type===x?' selected':'')+'>'+x+'</option>').join('')+'</select></div><input id="lmd" type="number" min="1" class="fw" placeholder="কত দিন ভোগ করেছেন" value="'+(m.days||'')+'"><input id="lmn" class="fw" placeholder="মন্তব্য (ঐচ্ছিক)" value="'+esc(m.note||'')+'"><div class="sub">CL দিলে বছরের '+bn(CLQ())+' দিনের পাওনা থেকে কাটা যাবে।</div>'+yn(['lmyes','সংরক্ষণ করুন'],['dno','বাতিল'])}
@@ -552,6 +556,7 @@ document.addEventListener('click',e=>{
     bcgo(){ui.bc.text=$('bctx').value.trim();ui.bc.list=Object.keys(ui.bc.sel).filter(k=>ui.bc.sel[k]);if(!ui.bc.list.length||!ui.bc.text){alert('অন্তত একজনকে টিক দিন ও মেসেজ লিখুন');return}ui.bc.step=2;render()},
     bcsent(){ui.bc.sent[b.dataset.id]=1;setTimeout(render,0)},
     bcback(){ui.bc.step=1;render()},tall(){ui.tAll=!ui.tAll;render()},xw(){const cur=curFri();ui.xw[d]=!(ui.xw[d]!==undefined?ui.xw[d]:d===cur);render()},xs(){const t=iso(new Date());ui.xs[d]=!(ui.xs[d]!==undefined?ui.xs[d]:d===t);render()},mordt(){ui.mord=!ui.mord;render()},pdf(){printStatement()},
+    lvt(){ui.lvl=!ui.lvl;render()},lvht(){ui.lvh=!ui.lvh;render()},lmt(){ui.lmShow=!ui.lmShow;render()},pprint(){printProfile(b.dataset.id)},
     xls(){dlXlsx()},
     login(){ui.lerr='';ui.dlg={k:'login'};render()},
     lgo(){auth.signInWithEmailAndPassword($('lem').value.trim(),$('lpw').value).then(()=>{ui.dlg=null;render()}).catch(()=>{ui.lerr='ইমেইল বা পাসওয়ার্ড ভুল';render()})},
@@ -561,6 +566,7 @@ document.addEventListener('click',e=>{
 });
 function ldRead(){if($('lp')&&$('lt'))ui.ld={pid:$('lp').value,type:$('lt').value,f:$('lf').value,e:$('le').value,pf:$('lpf').value,pe:$('lpe').value,note:$('ln').value}}
 document.addEventListener('change',e=>{const f=e.target,a=f.dataset.a;
+  if(f.id==='wlt'){setWl(f.checked);return}
   if(['lp','lt','lf','le','lpf','lpe','ln'].includes(f.id)){ldRead();if(f.id==='lt'){const c=f.value==='CL+PL';$('plrow').style.display=c?'block':'none';$('lbl1').textContent=c?'CL-এর শুরু ও শেষের তারিখ:':'ছুটির শুরু ও শেষের তারিখ:'}return}
   if(f.id==='let'){const c=f.value==='CL+PL';$('leplr').style.display=c?'block':'none';$('lelbl').textContent=(c?'CL-এর':'ছুটির')+' শুরু ও শেষের তারিখ:';return}
   if(a==='cov'){if(f.value)S.sub[f.dataset.d]=f.value;else delete S.sub[f.dataset.d];save();return}
@@ -598,10 +604,14 @@ function shXml(sh,hasDraw){
   return x+'<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup orientation="landscape"/>'+(hasDraw?'<drawing r:id="rId1"/>':'')+'</worksheet>'}
 function iconPng(g){const c=document.createElement('canvas');c.width=96;c.height=120;const x=c.getContext('2d');
   const bg=g==='f'?['#fbe0ec','#e58bb5']:g==='m'?['#d6e4ff','#6f8fe0']:['#e8ebf2','#aab3c5'],gr=x.createLinearGradient(0,0,0,120);gr.addColorStop(0,bg[0]);gr.addColorStop(1,bg[1]);x.fillStyle=gr;x.fillRect(0,0,96,120);
-  x.fillStyle=g==='f'?'#8a3b66':'#2b3f86';x.beginPath();x.ellipse(48,128,40,36,0,Math.PI,2*Math.PI);x.fill();
-  if(g==='f'){x.beginPath();x.ellipse(48,52,25,32,0,0,Math.PI*2);x.fill()}
-  x.fillStyle=g==='f'?'#fde2cf':'#f3d2b8';x.beginPath();x.arc(48,46,19,0,Math.PI*2);x.fill();
-  if(g==='m'){x.fillStyle='#2b3f86';x.beginPath();x.arc(48,41,19,Math.PI,2*Math.PI);x.fill()}
+  x.fillStyle='#1b2f7a';x.beginPath();x.ellipse(48,130,44,40,0,Math.PI,2*Math.PI);x.fill();
+  x.fillStyle='#e8eefc';x.beginPath();x.moveTo(35,92);x.lineTo(48,108);x.lineTo(61,92);x.lineTo(55,89);x.lineTo(48,98);x.lineTo(41,89);x.closePath();x.fill();
+  x.fillStyle='#d4a72c';x.beginPath();x.arc(68,108,4,0,Math.PI*2);x.fill();
+  if(g==='f'){x.fillStyle='#3b2a20';x.beginPath();x.ellipse(48,52,22,22,0,0,Math.PI*2);x.fill();x.beginPath();x.arc(48,26,7,0,Math.PI*2);x.fill()}
+  x.fillStyle=g==='f'?'#fde2cf':'#f3d2b8';x.beginPath();x.arc(48,58,17,0,Math.PI*2);x.fill();
+  x.fillStyle='#14236b';x.beginPath();x.ellipse(48,44,23,16,0,Math.PI,2*Math.PI);x.fill();x.fillRect(25,42,46,8);
+  x.fillStyle='#0b1550';x.fillRect(25,48,46,3);x.beginPath();x.ellipse(48,51,27,4.5,0,0,Math.PI);x.fill();
+  x.fillStyle='#d4a72c';x.beginPath();x.arc(48,42,3.4,0,Math.PI*2);x.fill();
   const bin=atob(c.toDataURL('image/png').split(',')[1]),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a}
 function buildSheets(){
   const cur=curFri(),out=sim(),sp=simSp(),cn=counts(out,sp,cur),now=new Date(),y=now.getFullYear(),td=iso(now);
@@ -624,7 +634,7 @@ function buildSheets(){
    memIds().forEach(id=>{const p=P(id);n++;const c=cn[id],lv=(S.leaves||[]).filter(l=>l.pid===id).reduce((a,l)=>a+ovDays(l,y),0),ri=ro.indexOf(id);imgs.push({r:rows.length,c:1,pid:id});
      rows.push({h:42,c:[{v:n,s:4},{v:'',s:3},{v:fullnm(id),s:5},{v:p.bp||'',s:4}].concat(ph?[{v:p.phone||'',s:4}]:[],[{v:p.role||'',s:3},{v:p.sup||'',s:3},{v:p.g==='m'?'পুরুষ':p.g==='f'?'মহিলা':'',s:4},{v:p.join?fd(p.join):'',s:4},{v:ri>=0?ri+1:'—',s:4},{v:p.sp?'হ্যাঁ':'—',s:4},{v:c.r,s:4},{v:c.bd,s:4},{v:c.sd,s:4},{v:exTxt(c),s:4},{v:c.s,s:4},{v:lv,s:4}])})});
    sheets.push({name:'সদস্য ও হিসাব',w:[6,8,34,16].concat(ph?[15]:[],[18,22,10,14,12,12,16,12,12,18,16,16]),rows:rows,imgs:imgs,merges:mg(cols.length)})}
-  {const rows=head('ডিউটির ক্রম (সর্বশেষ সাজানো অনুযায়ী)'),imgs=[],nx=id=>{const w=out.find(x=>x.date>=cur&&x.duty===id);return w?fd(w.date):'—'};
+  {const rows=head('ডিউটির ক্রম (সর্বশেষ সাজানো অনুযায়ী)'),imgs=[],nx=id=>{const w=out.find(x=>x.date>=upStart()&&x.duty===id);return w?fd(w.date):'—'};
    rows.push({h:26,c:[{v:'রোস্টারের ক্রম (পরের সপ্তাহ '+fd(nextF())+' থেকে কার্যকর)',s:5}]});rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','পরবর্তী ডিউটি']));
    ordIds('r').forEach((id,i)=>{imgs.push({r:rows.length,c:1,pid:id});rows.push({h:42,c:[{v:i+1,s:4},{v:'',s:3},{v:fullnm(id),s:5},{v:bpv(id),s:4},{v:nx(id),s:4}]})});
    rows.push({c:[]});rows.push({h:26,c:[{v:'বিশেষ ডিউটির ক্রম',s:5}]});rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','পরবর্তী বিশেষ ডিউটি']));
@@ -690,6 +700,23 @@ function sheetsToHtml(sheets){
     if(open)h+='</table>';h+='</div>'});
   return h+'</body></html>'}
 function printStatement(){try{const html=sheetsToHtml(buildSheets()),f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);const d=f.contentWindow.document;d.open();d.write(html);d.close();setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){alert('প্রিন্ট খোলেনি: '+e.message)}},700);setTimeout(()=>f.remove(),120000)}catch(e){alert('তৈরি হয়নি: '+e.message)}}
+function printHtml(html){try{const f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);const d=f.contentWindow.document;d.open();d.write(html);d.close();setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){alert('প্রিন্ট খোলেনি: '+e.message)}},700);setTimeout(()=>f.remove(),120000)}catch(e){alert('তৈরি হয়নি: '+e.message)}}
+function profileHtml(id){const p=P(id)||{},y=new Date().getFullYear(),out=sim(),sp=simSp(),cur=curFri(),td=iso(new Date()),c=counts(out,sp,cur)[id]||{r:0,s:0,sd:0,bd:0},st=lvStat(id,y),nr=out.find(w=>w.date>=upStart()&&w.duty===id),ns=sp.find(x=>x.date>=td&&x.duty===id),L=leaveStats().find(x=>x.id===id),now=new Date();
+  let sv='';if(p.join){const j=pd(p.join);let m=(now.getFullYear()-j.getFullYear())*12+now.getMonth()-j.getMonth();if(now.getDate()<j.getDate())m--;if(m>=0)sv=bn(Math.floor(m/12))+' বছর '+bn(m%12)+' মাস'}
+  const row=(a,v)=>v?'<tr><th>'+a+'</th><td>'+xe(v)+'</td></tr>':'',inR=elig(p,cur)||elig(p,nextF());
+  return '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>সদস্য পরিচিতি</title><style>@page{size:A4;margin:14mm}body{font-family:"Noto Sans Bengali","Nirmala UI",sans-serif;color:#111;font-size:13px}.hd{display:flex;align-items:center;gap:12px;border-bottom:3px solid #1e3a8a;padding-bottom:8px}.hd img{width:62px}.hd h1{margin:0;font-size:18px;color:#1e3a8a}.hd div{font-size:12px;color:#333}h2{text-align:center;font-size:16px;margin:12px 0 8px;border:1px solid #999;padding:4px;background:#eee}.top{display:flex;gap:16px;align-items:flex-start}.ph{width:118px;height:148px;object-fit:cover;border:2px solid #444}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:5px 8px;text-align:left;vertical-align:top}th{background:#eee;width:36%}.s{font-weight:700;margin-top:10px}.ft{margin-top:18px;font-size:11px;color:#444;text-align:right}</style></head><body><div class="hd"><img src="'+LOGO+'"><div><h1>পুলিশ হেডকোয়ার্টার্স</h1><div>কেন্দ্রীয় ডেসপাচ শাখা</div></div></div><h2>সদস্য পরিচিতি বিবরণ</h2>'
+   +'<div class="top"><img class="ph" src="'+photoUrl(id)+'"><table>'+row('নাম',p.name)+row('পদবী',rk(id))+row('বিপি নম্বর',p.bp)+row('কাজ / দায়িত্ব',p.role)+row('লিঙ্গ',p.g==='m'?'পুরুষ':p.g==='f'?'মহিলা':'')+row('শাখায় যোগদান',p.join?fd(p.join):'')+row('শাখায় সময়',sv)+row('তদারকি অফিসার',p.sup)+(vcall()?row('মোবাইল',p.phone):'')+'</table></div>'
+   +'<div class="s">ডিউটির তথ্য</div><table>'+row('রোস্টারে আছেন',inR?'হ্যাঁ':'না')+row('বিশেষ ডিউটি তালিকায়',p.sp?'হ্যাঁ':'না')+row('রোস্টার ডিউটি সম্পন্ন',bn(c.r)+' সপ্তাহ')+row('বিশেষ ডিউটি সম্পন্ন',bn(c.s)+' বার')+row('দিন বেশি/কম',exTxt(c))+row('পরবর্তী রোস্টার',nr?fd(nr.date):'')+row('পরবর্তী বিশেষ ডিউটি',ns?fd(ns.date)+' ('+ns.name+')':'')+'</table>'
+   +'<div class="s">ছুটির হিসাব — '+bn(y)+' সাল</div><table><tr><th>CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)</th><td>ভোগ '+bn(st.clU)+' · বাকি '+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</td></tr><tr><th>PL / CL+PL (যুক্ত) / LAP / RRL</th><td>'+bn(st.c.PL||0)+' / '+bn(st.c['CL+PL']||0)+' / '+bn(st.c.LAP||0)+' / '+bn(st.c.RRL||0)+' দিন</td></tr><tr><th>মোট ছুটি ভোগ</th><td>'+bn(st.tot)+' দিন</td></tr>'+(L?row('শেষ ছুটি',stTxt(L)):'')+'</table>'
+   +'<div class="ft">প্রিন্টের তারিখ: '+fd(td)+', '+bn(String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'))+'</div></body></html>'}
+function printProfile(id){printHtml(profileHtml(id))}
+let wlk=null;
+function wlWant(){try{const v=localStorage.getItem('wl');if(v!==null)return v==='1'}catch(e){}return !!(window.matchMedia&&matchMedia('(min-width:960px)').matches)}
+async function wlOn(){try{if(wlWant()&&('wakeLock' in navigator)&&!wlk&&document.visibilityState==='visible'){wlk=await navigator.wakeLock.request('screen');wlk.addEventListener('release',()=>{wlk=null})}}catch(e){}}
+function setWl(on){try{localStorage.setItem('wl',on?'1':'0')}catch(e){}if(on)wlOn();else if(wlk){try{wlk.release()}catch(e){}wlk=null}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wlOn()});
+document.addEventListener('click',()=>{wlOn()});
+wlOn();
 function dlXlsx(){try{const b=makeXlsx(),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='roster-statement-'+iso(new Date())+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}catch(e){alert('এক্সেল তৈরি হয়নি: '+e.message)}}
 let wxD=null;
 const WXI=c=>c===0?'☀️':c<=2?'🌤':c===3?'☁️':c<=48?'🌫':c<=67?'🌧':c<=77?'❄️':c<=82?'🌦':'⛈';
