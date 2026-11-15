@@ -760,7 +760,7 @@ function gateInit(){
     [unM,unMs].forEach(f=>f&&f());unM=unMs=null;
     if(isAdm){unMs=db.collection('members').onSnapshot(s=>{MEMS=s.docs.map(d=>Object.assign({id:d.id},d.data()));const c=$('mcnt');if(c)c.textContent=pendCnt();if($('gx'))drawMem()},()=>{})}
     else if(u&&bpOf(u)){unM=db.doc('members/'+u.uid).onSnapshot(d=>{
-      if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:false,created:Date.now()}).catch(()=>{});return}
+      if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:!!ui.regPw,created:Date.now()}).catch(()=>{});return}
       M=d.data();if(hasG()&&!M.email)saveGmail();render()},()=>{})}
     render();
   });
@@ -797,13 +797,19 @@ function pubHtml(){
   return '<h2 style="text-align:center;font-size:17px">রোস্টার ডিউটি — কেন্দ্রীয় ডেসপাচ শাখা, PHQ</h2>'+(ws.length?ws.map(card).join(''):'<div class="card sub">এখনো কোনো তথ্য নেই</div>');
 }
 function loginHtml(){
+  const er='<div id="gerr" class="sub" style="color:#b91c1c;min-height:18px"></div>';
+  if(ui.reg)return '<div class="card"><div class="ct">📝 নতুন অ্যাকাউন্ট খুলুন</div>'
+  +'<input class="fw" id="lid" placeholder="আপনার বিপি নম্বর" inputmode="numeric" autocomplete="username">'
+  +'<input class="fw" id="lpw" type="password" placeholder="নিজের পছন্দের পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" autocomplete="new-password">'
+  +'<input class="fw" id="lpw2" type="password" placeholder="পাসওয়ার্ড আবার লিখুন" autocomplete="new-password" onkeydown="if(event.keyCode===13)doReg()">'
+  +er+'<div class="row"><button class="pri" onclick="doReg()">অ্যাকাউন্ট খুলুন</button><button onclick="setReg(false)">← লগইনে ফিরুন</button></div>'
+  +'<div class="sub" style="margin-top:6px">এরপর আপনার Gmail যোগ করতে হবে এবং অ্যাডমিনের অনুমোদন লাগবে।</div></div>';
   return '<div class="card"><div class="ct">🔐 লগইন</div>'
   +'<input class="fw" id="lid" placeholder="বিপি নম্বর বা ইমেইল" autocomplete="username">'
   +'<input class="fw" id="lpw" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password" onkeydown="if(event.keyCode===13)doLogin()">'
-  +'<div id="gerr" class="sub" style="color:#b91c1c;min-height:18px"></div>'
-  +'<div class="row"><button class="pri" onclick="doLogin()">লগইন</button><button onclick="googleIn()">Google দিয়ে ঢুকুন</button></div>'
-  +'<div class="row"><button onclick="forgotPw()" style="border:none;background:none;text-decoration:underline" class="sub">পাসওয়ার্ড ভুলে গেছেন?</button></div>'
-  +'<div class="sub" style="margin-top:6px">প্রথমবার হলে বিপি নম্বর ও ডিফল্ট পাসওয়ার্ড দিন। পাসওয়ার্ড ভুলে গেলে "Google দিয়ে ঢুকুন" চাপুন।</div></div>';
+  +er+'<div class="row"><button class="pri" onclick="doLogin()">লগইন</button><button onclick="googleIn()">Google দিয়ে ঢুকুন</button></div>'
+  +'<div class="row"><button onclick="setReg(true)">📝 নতুন অ্যাকাউন্ট খুলুন</button><button onclick="forgotPw()" style="border:none;background:none;text-decoration:underline" class="sub">পাসওয়ার্ড ভুলে গেছেন?</button></div>'
+  +'<div class="sub" style="margin-top:6px">প্রথমবার হলে "নতুন অ্যাকাউন্ট খুলুন" চাপুন। পাসওয়ার্ড ভুলে গেলে "Google দিয়ে ঢুকুন" চাপুন।</div></div>';
 }
 function setupHtml(){
   const out='<div class="row"><button onclick="doLogout()">লগআউট</button></div>',err='<div id="gerr" class="sub" style="color:#b91c1c;min-height:18px"></div>';
@@ -823,10 +829,18 @@ async function doLogin(){
   const bp=normBp(id);if(!bp){gmsg('সঠিক বিপি নম্বর দিন');return}
   const em='bp'+bp+'@phq-roster.app';
   try{await auth.signInWithEmailAndPassword(em,pw)}
-  catch(e){
-    if(pw===DEFAULT_PW){try{await auth.createUserWithEmailAndPassword(em,pw)}catch(e2){gmsg('বিপি বা পাসওয়ার্ড ভুল')}}
-    else gmsg('বিপি বা পাসওয়ার্ড ভুল');
-  }
+  catch(e){gmsg('বিপি বা পাসওয়ার্ড ভুল। প্রথমবার হলে "নতুন অ্যাকাউন্ট খুলুন" চাপুন')}
+}
+function setReg(b){ui.reg=b;render()}
+async function doReg(){
+  const id=$('lid').value.trim(),pw=$('lpw').value,p2=$('lpw2').value;gmsg('');
+  const bp=id.includes('@')?'':normBp(id);
+  if(!bp){gmsg('সঠিক বিপি নম্বর দিন (শুধু সংখ্যা)');return}
+  if(pw.length<6){gmsg('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন');return}
+  if(pw!==p2){gmsg('দুটো পাসওয়ার্ড মেলেনি');return}
+  ui.regPw=true;
+  try{await auth.createUserWithEmailAndPassword('bp'+bp+'@phq-roster.app',pw)}
+  catch(e){ui.regPw=false;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "Google দিয়ে ঢুকুন" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
 }
 async function googleIn(){
   gmsg('');ui.forcePw=true;
@@ -858,7 +872,7 @@ function forgotPw(){
   if(!id.includes('@')){gmsg('"Google দিয়ে ঢুকুন" বাটন চেপে ঢুকুন, তারপর নতুন পাসওয়ার্ড দিন');return}
   auth.sendPasswordResetEmail(id).then(()=>gmsg('রিসেট লিংক ইমেইলে পাঠানো হয়েছে',1)).catch(()=>gmsg('পাঠানো যায়নি'));
 }
-function doLogout(){ui.forcePw=false;auth.signOut()}
+function doLogout(){ui.forcePw=false;ui.reg=false;ui.regPw=false;auth.signOut()}
 
 /* ---- অ্যাডমিন: সদস্য অনুমোদন ---- */
 function openMemAdm(){
