@@ -895,8 +895,8 @@ function drawMem(){
   const bt=(a,id,t,c)=>'<button'+(c?' class="'+c+'"':'')+' data-g="'+a+'" data-id="'+id+'">'+t+'</button>';
   const GH=['👮 আমার এন্ট্রি দেওয়া সদস্যদের অ্যাকাউন্ট','✅ নিজে খোলা — আমার সদস্য তালিকায় নেওয়া','🆕 নিজে খোলা অ্যাকাউন্ট (বাইরের — আমার তালিকায় নেই)'];
   const cnt=[0,0,0];MEMS.forEach(m=>cnt[grp(m)]++);
-  let lg=-1;
-  const allH=(L.length?L.map(m=>{
+  let lg=-1;const tab=window._mt||'pend';const LV=L.filter(m=>tab==='ext'?grp(m)>0:grp(m)===0);
+  const allH=(LV.length?LV.map(m=>{
     const p=pOfM(m),id=m.id,k=grp(m);
     const st=m.banned?'<span class="chip c3">⛔ ব্যান</span>':m.approved?'<span class="chip c2">অনুমোদিত</span>':'<span class="chip c3">অপেক্ষায়</span>';
     const pl=plOf(m),md=m.role==='mod'?' <span class="chip c1">🛡 মডারেটর ('+bn(pl.length)+' ক্ষমতা)</span>':'';
@@ -917,8 +917,7 @@ function drawMem(){
     const sty=k?' style="border-left:3px solid var(--gd);padding-left:8px"':'';
     return hh+'<div class="ni"'+sty+'><div><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b> '+st+tg+md+'</div>'
     +'<div class="sub">বিপি-'+esc(m.bp)+' · Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div><div class="row">'+r+'</div>'+(m.approved&&!m.banned?pn:'')+'</div>';
-  }).join(''):'<div class="sub">কেউ এখনো লগইন করেনি</div>');
-  const tab=window._mt||'pend';
+  }).join(''):'<div class="sub">'+(tab==='ext'?'নিজে খোলা কোনো অ্যাকাউন্ট নেই':'কেউ এখনো লগইন করেনি')+'</div>');
   const pend=MEMS.filter(m=>!m.approved&&!m.banned).sort((a,b)=>(b.created||0)-(a.created||0));
   const tb=(k,t)=>'<button data-g="tab" data-t="'+k+'"'+(tab===k?' class="pri"':'')+'>'+t+'</button>';
   const pendH=pend.length?pend.map(m=>{
@@ -931,8 +930,8 @@ function drawMem(){
       +(m.email?'':'<div class="sub">Gmail না দেওয়া পর্যন্ত অনুমোদন দেওয়া যাবে না</div>')+'</div>'
   }).join(''):'<div class="sub">কোনো আবেদন অপেক্ষায় নেই ✅</div>';
   g.innerHTML='<div class="card" style="max-width:560px;margin:0 auto"><div class="row" style="justify-content:space-between;margin:0 0 8px"><div class="ct">👥 সদস্য লগইন</div><button data-g="close">✕</button></div>'
-    +'<div class="row" style="margin:0 0 8px">'+tb('pend','⏳ অপেক্ষায় ('+bn(pend.length)+')')+tb('all','👥 সব সদস্য ('+bn(MEMS.length)+')')+'</div>'
-    +(tab==='all'?'<div class="sub">আমার এন্ট্রি দেওয়া: '+bn(cnt[0])+' · নিজে খোলা (আমার তালিকায়): '+bn(cnt[1])+' · বাইরের: '+bn(cnt[2])+'</div>'+allH:pendH)+'</div>';
+    +'<div class="row" style="margin:0 0 8px">'+tb('pend','⏳ অপেক্ষায় ('+bn(pend.length)+')')+tb('all','👥 সব সদস্য ('+bn(cnt[0])+')')+tb('ext','🆕 নিজে খোলা ('+bn(cnt[1]+cnt[2])+')')+'</div>'
+    +(tab==='all'?allH:tab==='ext'?'<div class="sub">আমার তালিকায় নেওয়া: '+bn(cnt[1])+' · বাইরের: '+bn(cnt[2])+'</div>'+allH:pendH)+'</div>';
 }
 function mtoast(t){const d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;z-index:1001;max-width:90%;font-size:14px;text-align:center';document.body.appendChild(d);setTimeout(()=>d.remove(),4000)}
 function memClick(e){
