@@ -915,7 +915,7 @@ function drawMem(){
     const hh=k!==lg?'<div class="ct" style="margin:12px 0 4px">'+GH[k]+' ('+bn(cnt[k])+')</div>':'';lg=k;
     const tg=k===1?'<span class="chip c4">আমার তালিকায়</span>'+(p.nl?'':'<span class="chip c2">🏖 ছুটির তালিকায়</span>'):k===2?'<span class="chip c1">বাইরের</span>':'';
     const sty=k?' style="border-left:3px solid var(--gd);padding-left:8px"':'';
-    return hh+'<div class="ni"'+sty+'><div><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b> '+st+tg+md+'</div>'
+    return hh+'<div class="ni"'+sty+'><div style="display:flex;gap:10px;align-items:center">'+(p?avt(p.id,44):'')+'<div><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b> '+st+tg+md+'</div></div>'
     +'<div class="sub">বিপি-'+esc(m.bp)+' · Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div><div class="row">'+r+'</div>'+(m.approved&&!m.banned?pn:'')+'</div>';
   }).join(''):'<div class="sub">'+(tab==='ext'?'নিজে খোলা কোনো অ্যাকাউন্ট নেই':'কেউ এখনো লগইন করেনি')+'</div>');
   const pend=MEMS.filter(m=>!m.approved&&!m.banned).sort((a,b)=>(b.created||0)-(a.created||0));
@@ -923,7 +923,7 @@ function drawMem(){
   const pendH=pend.length?pend.map(m=>{
     const p=pOfM(m),id=m.id,k=grp(m);
     const chip=k===0?' · <span class="chip c2">আমার এন্ট্রি দেওয়া</span>':k===1?' · <span class="chip c4">নিজে খোলা — আমার তালিকায়</span>':' · <span class="chip c1">বাইরের</span>';
-    return '<div class="ni" style="padding:10px 0"><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b>'
+    return '<div class="ni" style="padding:10px 0"><div style="display:flex;gap:10px;align-items:center">'+(p?avt(p.id,44):'')+'<b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b></div>'
       +'<div class="sub">বিপি-'+esc(m.bp)+chip+'</div>'
       +'<div class="sub">Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div>'
       +'<div class="row" style="margin-top:8px">'+bt('ok',id,'✔ অনুমোদন','pri').replace('<button','<button'+(m.email?'':' disabled'))+bt('ban',id,'✕ প্রত্যাখ্যান')+(k===2?bt('addm',id,'➕ আমার সদস্য তালিকায় নিন'):'')+'</div>'
