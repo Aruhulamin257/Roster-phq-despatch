@@ -745,7 +745,7 @@ function permCss(){
   const sel=[];for(const k in ACT)if(!hasPerm(k))ACT[k].split(' ').forEach(a=>['button','select','b'].forEach(t=>sel.push(t+'[data-a="'+a+'"]')));
   st.textContent=sel.length?sel.join(',')+'{display:none!important}':'';
 }
-const pendCnt=()=>MEMS.filter(m=>!m.approved).length;
+const pendCnt=()=>MEMS.filter(m=>!m.approved&&!m.banned).length;
 const memLabel=()=>bpOf(U)?'বিপি-'+bpOf(U):((U&&U.email)||'');
 const gp=()=>new firebase.auth.GoogleAuthProvider();
 const gmsg=(t,ok)=>{const e=$('gerr');if(e){e.textContent=t||'';e.style.color=ok?'#16a34a':'#b91c1c'}};
@@ -883,10 +883,10 @@ function openMemAdm(){
 }
 function drawMem(){
   const g=$('gx');if(!g)return;
-  const L=MEMS.slice().sort((a,b)=>(a.approved?1:0)-(b.approved?1:0)||(b.created||0)-(a.created||0));
+  const hasP=m=>S.people.some(x=>x.bp&&x.bp===m.bp);let lg=null;
+  const L=MEMS.slice().sort((a,b)=>(hasP(a)?1:0)-(hasP(b)?1:0)||(a.approved?1:0)-(b.approved?1:0)||(b.created||0)-(a.created||0));
   const bt=(a,id,t,c)=>'<button'+(c?' class="'+c+'"':'')+' data-g="'+a+'" data-id="'+id+'">'+t+'</button>';
-  g.innerHTML='<div class="card" style="max-width:560px;margin:0 auto"><div class="row" style="justify-content:space-between;margin:0 0 8px"><div class="ct">👥 সদস্য লগইন ('+bn(pendCnt())+' জন অপেক্ষায়)</div><button data-g="close">✕</button></div>'
-  +(L.length?L.map(m=>{
+  const allH=(L.length?L.map(m=>{
     const p=S.people.find(x=>x.bp&&x.bp===m.bp),id=m.id;
     const st=m.banned?'<span class="chip c3">⛔ ব্যান</span>':m.approved?'<span class="chip c2">অনুমোদিত</span>':'<span class="chip c3">অপেক্ষায়</span>';
     const pl=m.perms||[],md=m.role==='mod'?' <span class="chip c1">🛡 মডারেটর ('+bn(pl.length)+' ক্ষমতা)</span>':'';
@@ -895,16 +895,34 @@ function drawMem(){
     let r='';
     if(m.banned)r=bt('unban',id,'✅ ব্যান তুলুন','pri');
     else{
-      r=(m.approved?bt('rev',id,'বাতিল'):bt('ok',id,'✔ অনুমোদন','pri').replace('<button','<button'+(p&&m.email?'':' disabled')))
+      r=(m.approved?bt('rev',id,'বাতিল'):bt('ok',id,'✔ অনুমোদন','pri').replace('<button','<button'+(m.email?'':' disabled')))
        +bt('pw',id,'🔑 পাসওয়ার্ড রিসেট')+bt('ban',id,'⛔ ব্যান')
+       +(!p?bt('addr',id,'➕ রোস্টার তালিকায় যোগ'):'')
        +bt('del',id,'মুছুন');
     }
-    return '<div class="ni"><div><b>'+(p?esc(fullnm(p.id)):'⚠ তালিকায় এই বিপি নেই')+'</b> '+st+md+'</div>'
+    const gk=p?1:0,hh=gk!==lg?'<div class="ct" style="margin:12px 0 4px">'+(gk?'👮 রোস্টারের সদস্যদের অ্যাকাউন্ট':'🆕 নিজে খোলা অ্যাকাউন্ট (রোস্টারে নেই)')+'</div>':'';lg=gk;
+    return hh+'<div class="ni"><div><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b> '+st+(p?'':'<span class="chip c1">রোস্টারে নেই</span>')+md+'</div>'
     +'<div class="sub">বিপি-'+esc(m.bp)+' · Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div><div class="row">'+r+'</div>'+(m.approved&&!m.banned?pn:'')+'</div>';
-  }).join(''):'<div class="sub">কেউ এখনো লগইন করেনি</div>')+'</div>';
+  }).join(''):'<div class="sub">কেউ এখনো লগইন করেনি</div>');
+  const tab=window._mt||'pend';
+  const pend=MEMS.filter(m=>!m.approved&&!m.banned).sort((a,b)=>(b.created||0)-(a.created||0));
+  const tb=(k,t)=>'<button data-g="tab" data-t="'+k+'"'+(tab===k?' class="pri"':'')+'>'+t+'</button>';
+  const pendH=pend.length?pend.map(m=>{
+    const p=S.people.find(x=>x.bp&&x.bp===m.bp),id=m.id;
+    return '<div class="ni" style="padding:10px 0"><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b>'
+      +'<div class="sub">বিপি-'+esc(m.bp)+(p?' · <span class="chip c2">রোস্টারে আছে</span>':' · <span class="chip c1">রোস্টারে নেই</span>')+'</div>'
+      +'<div class="sub">Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div>'
+      +'<div class="row" style="margin-top:8px">'+bt('ok',id,'✔ অনুমোদন','pri').replace('<button','<button'+(m.email?'':' disabled'))+bt('ban',id,'✕ প্রত্যাখ্যান')+(!p?bt('addr',id,'➕ রোস্টারে যোগ'):'')+'</div>'
+      +(m.email?'':'<div class="sub">Gmail না দেওয়া পর্যন্ত অনুমোদন দেওয়া যাবে না</div>')+'</div>'
+  }).join(''):'<div class="sub">কোনো আবেদন অপেক্ষায় নেই ✅</div>';
+  g.innerHTML='<div class="card" style="max-width:560px;margin:0 auto"><div class="row" style="justify-content:space-between;margin:0 0 8px"><div class="ct">👥 সদস্য লগইন</div><button data-g="close">✕</button></div>'
+    +'<div class="row" style="margin:0 0 8px">'+tb('pend','⏳ অপেক্ষায় ('+bn(pend.length)+')')+tb('all','👥 সব সদস্য ('+bn(MEMS.length)+')')+'</div>'
+    +(tab==='all'?allH:pendH)+'</div>';
 }
+function mtoast(t){const d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;z-index:1001;max-width:90%;font-size:14px;text-align:center';document.body.appendChild(d);setTimeout(()=>d.remove(),4000)}
 function memClick(e){
   const b=e.target.closest('[data-g]');if(!b||b.disabled)return;
+  if(b.dataset.g==='tab'){window._mt=b.dataset.t;drawMem();return}
   const a=b.dataset.g,r=db.doc('members/'+b.dataset.id);
   if(a==='close'){$('gx').remove();return}
   const U2={ok:{approved:true},rev:{approved:false},ban:{banned:true,approved:false,role:firebase.firestore.FieldValue.delete(),perms:firebase.firestore.FieldValue.delete()},unban:{banned:false},
@@ -912,13 +930,23 @@ function memClick(e){
   if(a==='perm'||a==='permall'){
     const m=MEMS.find(x=>x.id===b.dataset.id);if(!m)return;let cur=new Set(m.perms||[]);
     if(a==='permall')cur=b.checked?new Set(PERMS.map(x=>x[0])):new Set();else if(b.checked)cur.add(b.dataset.k);else cur.delete(b.dataset.k);
-    const L=[...cur];r.update({perms:L,role:L.length?'mod':firebase.firestore.FieldValue.delete()}).catch(()=>alert('হয়নি'));return}
+    const L=[...cur];r.update({perms:L,role:L.length?'mod':firebase.firestore.FieldValue.delete()}).catch(e=>mtoast('হয়নি: '+(e.code||'')));return}
+  if(a==='addr'){
+    const m=MEMS.find(x=>x.id===b.dataset.id);
+    if(!m||S.people.find(x=>x.bp&&x.bp===m.bp))return;
+    if(!db||!editor){mtoast('রোস্টারে যোগ করার অনুমতি নেই');return}
+    const np={id:'p'+Date.now().toString(36),name:'নতুন সদস্য',phone:'',bp:m.bp,j:nextF(),hist:[{d:nextF(),on:false}],sp:false};
+    S.people.push(np);
+    db.doc('roster/main').set({json:JSON.stringify(S),t:Date.now()}).then(()=>{pubWeek();render();drawMem();mtoast('✅ রোস্টার তালিকায় যোগ হয়েছে। সেটিংসে গিয়ে নাম-পদবী দিন (রোস্টার/বিশেষ ডিউটি বন্ধ আছে)')}).catch(e=>{S.people=S.people.filter(x=>x!==np);mtoast('যোগ হয়নি: '+(e.code||''))});
+    return;
+  }
   let w=null;
-  if(a==='pw'){if(confirm('এই সদস্য পরেরবার ঢোকার সময় নতুন পাসওয়ার্ড দিতে বাধ্য হবে। করবেন?'))w=r.update(U2.pw)}
-  else if(a==='ban'){if(confirm('এই আইডি ব্যান করবেন? সে আর কিছুই দেখতে পাবে না।'))w=r.update(U2.ban)}
-  else if(a==='del'){if(confirm('এই সদস্যের লগইন তথ্য মুছবেন?'))w=r.delete()}
+  const need=k=>{const now=Date.now();if(window._mc&&window._mc.k===k&&now-window._mc.t<4000)return true;window._mc={k:k,t:now};b.textContent='⚠ আবার চাপুন';setTimeout(()=>{if($('gx'))drawMem()},4000);return false};
+  if(a==='pw'){if(need('pw'+b.dataset.id))w=r.update(U2.pw)}
+  else if(a==='ban'){if(need('ban'+b.dataset.id))w=r.update(U2.ban)}
+  else if(a==='del'){if(need('del'+b.dataset.id))w=r.delete()}
   else if(U2[a])w=r.update(U2[a]);
-  if(w)w.catch(()=>alert('হয়নি'));
+  if(w)w.then(()=>{if(a==='del'||a==='ban')mtoast('✅ হয়েছে')}).catch(e=>mtoast('হয়নি: '+(e.code||e.message||'')));
 }
 
 /* ---- পাবলিক ডকুমেন্ট তৈরি (শুধু নাম, পদবী, ছোট ছবি) ---- */
