@@ -132,6 +132,7 @@ function curFri(){const t=new Date();t.setHours(0,0,0,0);t.setDate(t.getDate()-(
 const nextF=()=>addD(curFri(),7);
 const isWE=d=>{const w=pd(d).getDay();return w===5||w===6};
 const LT=['CL','PL','CL+PL','LAP','RRL'];
+const LTS=LT.filter(t=>t!=='CL');
 const RS=['ছুটি','অসুস্থতা','প্রশিক্ষণ','সরকারি কাজ','জরুরি প্রয়োজন','অন্যান্য'];
 const DEFHOL={'2026-12-16':'বিজয় দিবস','2026-12-25':'বড়দিন','2027-02-21':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','2027-03-26':'স্বাধীনতা দিবস','2027-04-14':'পহেলা বৈশাখ','2027-05-01':'মে দিবস','2027-08-05':'গণঅভ্যুত্থান দিবস','2027-12-16':'বিজয় দিবস','2027-12-25':'বড়দিন'};
 let S=JSON.parse($('data').textContent);
@@ -399,7 +400,7 @@ function leaveTab(out,sp){
   let h='<h2>🏖 ছুটির হিসাব</h2><div class="note'+(onN?'':' n2c')+'" style="font-size:14px"><b>'+(onN?'বর্তমানে '+bn(onN)+' জন সদস্য ছুটিতে আছেন':'বর্তমানে কেউ ছুটিতে নেই')+'</b>'+nowL.map(x=>'<div class="ia" style="display:flex;margin-top:6px;color:var(--tx)">'+avt(x.l.pid,28)+'<span><b>'+esc(fullnm(x.l.pid))+'</b> — '+esc(x.l.type)+' · '+lvText(x.l)+'<br><b>'+lab[x.p]+'</b>'+(x.p!=='ret'?'<br><b>কর্মস্থলে হাজির: '+fd(retDate(x.l))+' (দুপুর ১২টার আগে)</b>':'')+'</span></div>').join('')+'</div>';
   if(editor)h+=lvFormHtml();
   h+='<div class="row"><b>বছর:</b><select data-a="ly">'+[y-1,y,y+1].map(v=>'<option value="'+v+'"'+(v===y?' selected':'')+'>'+bn(v)+'</option>').join('')+'</select><button class="pri" data-a="xls">📥 এক্সেল (.xlsx)</button><button data-a="pdf">🖨 PDF/প্রিন্ট</button></div>';
-  h+='<div class="sub">CL (Casual Leave) প্রতি সদস্যের বছরে '+bn(q)+' দিন পাওনা। অন্য ছুটির নির্দিষ্ট সংখ্যা নেই।</div><div class="card tw"><table><tr><th>নাম</th><th>CL পাওনা</th><th>CL ভোগ</th><th>CL বাকি</th>'+LT.map(t=>'<th>'+(t==='CL+PL'?'CL+PL (যুক্ত)':t)+'</th>').join('')+'<th>মোট ভোগ</th></tr>'+ps.map(p=>{const st=lvStat(p.id,y);return '<tr><td><span class="ia">'+avt(p.id,22)+'<span data-a="prof" data-id="'+p.id+'" class="lk2">'+esc(fullnm(p.id))+'</span></span></td><td>'+bn(q)+'</td><td>'+bn(st.clU)+'</td><td><b'+(st.clRem<0?' style="color:#b91c1c"':'')+'>'+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</b></td>'+LT.map(t=>'<td>'+bn(st.c[t]||0)+'</td>').join('')+'<td><b>'+bn(st.tot)+'</b></td></tr>'}).join('')+'</table></div>';
+  h+='<div class="sub">CL (Casual Leave) প্রতি সদস্যের বছরে '+bn(q)+' দিন পাওনা। অন্য ছুটির নির্দিষ্ট সংখ্যা নেই।</div><div class="card tw"><table><tr><th>নাম</th><th>CL পাওনা</th><th>CL ভোগ</th><th>CL বাকি</th>'+LTS.map(t=>'<th>'+(t==='CL+PL'?'CL+PL (যুক্ত)':t)+'</th>').join('')+'<th>মোট ভোগ</th></tr>'+ps.map(p=>{const st=lvStat(p.id,y);return '<tr><td><span class="ia">'+avt(p.id,22)+'<span data-a="prof" data-id="'+p.id+'" class="lk2">'+esc(fullnm(p.id))+'</span></span></td><td>'+bn(q)+'</td><td>'+bn(st.clU)+'</td><td><b'+(st.clRem<0?' style="color:#b91c1c"':'')+'>'+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</b></td>'+LTS.map(t=>'<td>'+bn(st.c[t]||0)+'</td>').join('')+'<td><b>'+bn(st.tot)+'</b></td></tr>'}).join('')+'</table></div>';
   const endOf=l=>lspans(l).reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),act=ls.filter(l=>endOf(l)>=tn),ended=ls.filter(l=>endOf(l)<tn);
   h+=prioHtml()+'<div class="row"><button data-a="lvt"'+(ui.lvl?' class="pri"':'')+'>📋 ছুটির তালিকা '+(ui.lvl?'লুকান':'দেখুন')+' ('+bn(act.length)+')</button><button data-a="lvht">🕘 ছুটির ইতিহাস '+(ui.lvh?'লুকান':'দেখুন')+' ('+bn(ended.length)+')</button>'+(editor?'<button data-a="lmt">✍ ম্যানুয়াল এন্ট্রির তালিকা '+bn(y)+' '+(ui.lmShow?'লুকান':'দেখুন')+'</button>':'')+'</div>';
   if(ui.lvl)h+='<div class="wlist">'+(act.map(l=>leaveCard(l,out,sp)).join('')||'<div class="sub">চলমান বা আসন্ন কোনো ছুটি নেই</div>')+'</div>';
@@ -648,11 +649,11 @@ function buildSheets(){
    sp.filter(x=>x.date>=from&&x.date<=to).forEach(x=>{n++;if(x.duty)imgs.push({r:rows.length,c:4,pid:x.duty});
      rows.push({h:42,c:[{v:n,s:4},{v:fd(x.date),s:4},{v:wkdn(x.date),s:4},{v:x.name,s:3},{v:'',s:3},{v:nm(x.duty),s:5},{v:bpv(x.duty),s:4}].concat(ph?[{v:phv(x.duty),s:4}]:[],[{v:x.date<td?'সম্পন্ন':x.date===td?'আজ':'নির্ধারিত',s:4},{v:S.att[x.date]?'উপস্থিত ✓':(x.date<td?'নিশ্চিত হয়নি':'—'),s:4},{v:x.ov?'হ্যাঁ':'—',s:4},{v:S.spsent[x.date]||'—',s:4},{v:(function(){const q=sp.find(z=>z.date>x.date&&z.duty===x.duty);return q?bn(gap(x.date,q.date))+' দিন পরে ('+fd(q.date)+')':'—'})(),s:4},{v:((x.sk&&x.sk.length?x.sk.map(fullnm).join(', ')+' অনুপস্থিত ('+x.rs+') — '+(x.duty?fullnm(x.duty)+' ডিউটি করেছেন':'বদলি নেই'):'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'এডমিন নির্ধারিত':''))||'—',s:3}])})});
    sheets.push({name:'বিশেষ ডিউটি',w:[6,14,12,36,8,32,16].concat(ph?[15]:[],[12,14,14,14,26,44]),rows:rows,imgs:imgs,merges:mg(cols.length)})}
-  {const cols=['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','CL পাওনা','CL ভোগ','CL বাকি'].concat(LT.map(t=>t==='CL+PL'?'CL+PL (যুক্ত)':t),['মোট ভোগ (দিন)']);
+  {const cols=['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','CL পাওনা','CL ভোগ','CL বাকি'].concat(LTS.map(t=>t==='CL+PL'?'CL+PL (যুক্ত)':t),['মোট ভোগ (দিন)']);
    const rows=head('ছুটির হিসাব — '+bn(y)+' সাল (CL বার্ষিক পাওনা '+bn(CLQ())+' দিন)'),imgs=[];rows.push(hr(cols));let n=0;
    memIds().forEach(id=>{n++;const st=lvStat(id,y);imgs.push({r:rows.length,c:1,pid:id});
-     rows.push({h:42,c:[{v:n,s:4},{v:'',s:3},{v:fullnm(id),s:5},{v:bpv(id),s:4},{v:CLQ(),s:4},{v:st.clU,s:4},{v:(st.clRem<0?'−'+(-st.clRem)+' (বেশি)':st.clRem),s:7}].concat(LT.map(t=>({v:st.c[t]||0,s:4})),[{v:st.tot,s:7}])})});
-   sheets.push({name:'ছুটির হিসাব',w:[6,8,34,16,12,12,14,10,10,10,10,10,14],rows:rows,imgs:imgs,merges:mg(13)})}
+     rows.push({h:42,c:[{v:n,s:4},{v:'',s:3},{v:fullnm(id),s:5},{v:bpv(id),s:4},{v:CLQ(),s:4},{v:st.clU,s:4},{v:(st.clRem<0?'−'+(-st.clRem)+' (বেশি)':st.clRem),s:7}].concat(LTS.map(t=>({v:st.c[t]||0,s:4})),[{v:st.tot,s:7}])})});
+   sheets.push({name:'ছুটির হিসাব',w:[6,8,34,16,12,12,14,10,10,10,10,14],rows:rows,imgs:imgs,merges:mg(12)})}
   {const rows=head('ছুটির বিস্তারিত তালিকা'),imgs=[];rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','ছুটির ধরন','তারিখ','মোট দিন','কর্মস্থলে হাজির (দুপুর ১২টার আগে)','রোস্টার / বিশেষ ডিউটি সংক্রান্ত মন্তব্য']));let n=0;
    (S.leaves||[]).slice().sort((a,b)=>a.from<b.from?1:-1).forEach(l=>{n++;const imp=leaveImpact(l,out,sp),m=memberOf(l),notes=[l.note];
      if(!m.inR&&!m.inS)notes.push('উক্ত সদস্য সাপ্তাহিক রোস্টার/বিশেষ রোস্টার ডিউটির অন্তর্ভুক্ত নন');else if(!imp.wk.length&&!imp.spd.length)notes.push('ছুটিকালীন সময়ে সাপ্তাহিক রোস্টার/বিশেষ ডিউটি নাই');
@@ -807,9 +808,9 @@ function loginHtml(){
   return '<div class="card"><div class="ct">🔐 লগইন</div>'
   +'<input class="fw" id="lid" placeholder="বিপি নম্বর বা ইমেইল" autocomplete="username">'
   +'<input class="fw" id="lpw" type="password" placeholder="পাসওয়ার্ড" autocomplete="current-password" onkeydown="if(event.keyCode===13)doLogin()">'
-  +er+'<div class="row"><button class="pri" onclick="doLogin()">লগইন</button><button onclick="googleIn()">Google দিয়ে ঢুকুন</button></div>'
+  +er+'<div class="row"><button class="pri" onclick="doLogin()">লগইন</button></div>'
   +'<div class="row"><button onclick="setReg(true)">📝 নতুন অ্যাকাউন্ট খুলুন</button><button onclick="forgotPw()" style="border:none;background:none;text-decoration:underline" class="sub">পাসওয়ার্ড ভুলে গেছেন?</button></div>'
-  +'<div class="sub" style="margin-top:6px">প্রথমবার হলে "নতুন অ্যাকাউন্ট খুলুন" চাপুন। পাসওয়ার্ড ভুলে গেলে "Google দিয়ে ঢুকুন" চাপুন।</div></div>';
+  +'<div class="sub" style="margin-top:6px">প্রথমবার হলে "নতুন অ্যাকাউন্ট খুলুন" চাপুন। পাসওয়ার্ড ভুলে গেলে "পাসওয়ার্ড ভুলে গেছেন?" চাপুন।</div></div>';
 }
 function setupHtml(){
   const out='<div class="row"><button onclick="doLogout()">লগআউট</button></div>',err='<div id="gerr" class="sub" style="color:#b91c1c;min-height:18px"></div>';
@@ -840,7 +841,7 @@ async function doReg(){
   if(pw!==p2){gmsg('দুটো পাসওয়ার্ড মেলেনি');return}
   ui.regPw=true;
   try{await auth.createUserWithEmailAndPassword('bp'+bp+'@phq-roster.app',pw)}
-  catch(e){ui.regPw=false;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "Google দিয়ে ঢুকুন" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
+  catch(e){ui.regPw=false;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "পাসওয়ার্ড ভুলে গেছেন?" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
 }
 async function googleIn(){
   gmsg('');ui.forcePw=true;
@@ -869,7 +870,7 @@ async function setPw(){
 }
 function forgotPw(){
   const id=($('lid').value||'').trim();
-  if(!id.includes('@')){gmsg('"Google দিয়ে ঢুকুন" বাটন চেপে ঢুকুন, তারপর নতুন পাসওয়ার্ড দিন');return}
+  if(!id.includes('@')){googleIn();return}
   auth.sendPasswordResetEmail(id).then(()=>gmsg('রিসেট লিংক ইমেইলে পাঠানো হয়েছে',1)).catch(()=>gmsg('পাঠানো যায়নি'));
 }
 function doLogout(){ui.forcePw=false;ui.reg=false;ui.regPw=false;auth.signOut()}
