@@ -260,7 +260,7 @@ function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=upSt
   return (editor?'<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button data-a="bc">✉ জরুরি মেসেজ পাঠান</button></div>':'')+'<h2>কী দেখতে চান?</h2><div class="opts">'+opt('r','📋','রোস্টার ডিউটির তালিকা',nw?'পরবর্তী: '+esc(fullnm(nw.duty)):'')+opt('s','⭐','বিশেষ ডিউটির তালিকা',ns?esc(fullnm(ns.duty))+' — '+fd(ns.date):'কোনো বিশেষ ডিউটি নেই')+'</div><div class="opts opts3">'+opt('c','📅','ক্যালেন্ডার','')+opt('l','🏖','ছুটির হিসাব','')+opt('m','👥','সদস্য','')+'</div>'}
 function tabsHtml(){return '<div class="tabs">'+[['h','🏠','হোম'],['r','📋','রোস্টার'],['s','⭐','বিশেষ'],['c','📅','ক্যালেন্ডার'],['l','🏖','ছুটি'],['m','👥','সদস্য']].map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join('')+'</div>'}
 const TKC=['#1e3a8a','#0f766e','#b45309','#9f1239','#4c1d95','#166534','#111827'];
-function tkSet(){const tk=S.tk||{};return '<div class="card"><label><input type="checkbox" id="tkon"'+(tk.on!==false?' checked':'')+' style="width:auto"> বিজ্ঞপ্তি-পট্টি চালু</label><input id="tktx" class="fw" value="'+esc(tk.text||'')+'" placeholder="বিজ্ঞপ্তির লেখা (ফাঁকা রাখলে নোটিশগুলো চলবে)"><div class="sub">রং বাছুন:</div><div class="row">'+TKC.map(c=>'<button data-a="tkc" data-c="'+c+'" style="background:'+c+';width:30px;height:30px;padding:0;border:'+(tk.color===c?'3px solid var(--gd)':'1px solid var(--bd)')+'"></button>').join('')+'<input type="color" id="tkcol" value="'+esc(tk.color||'#1e3a8a')+'" style="width:44px;padding:0;height:32px"></div><div class="row"><button class="pri" data-a="tksv">সেভ করো</button></div></div>'}
+function tkSet(){const tk=S.tk||{};return '<div class="card"><label><input type="checkbox" id="tkon"'+(tk.on!==false?' checked':'')+' style="width:auto"> বিজ্ঞপ্তি-পট্টি চালু</label><input id="tktx" class="fw" value="'+esc(tk.text||'')+'" placeholder="বিজ্ঞপ্তির লেখা (ফাঁকা রাখলে নোটিশগুলো চলবে)"><div class="sub">রং বাছুন:</div><div class="row">'+TKC.map(c=>'<button data-a="tkc" data-c="'+c+'" style="background:'+c+';width:30px;height:30px;padding:0;border:'+(tk.color===c?'3px solid var(--gd)':'1px solid var(--bd)')+'"></button>').join('')+'<input type="color" id="tkcol" value="'+esc(tk.color||'#1e3a8a')+'" style="width:44px;padding:0;height:32px"></div><div class="row"><button class="pri" data-a="tksv">সংরক্ষণ করুন</button></div></div>'}
 function tickerHtml(){const tk=S.tk||{},tx=(tk.text||'').trim()||(S.notices||[]).map(n=>n.t.replace(/\s+/g,' ')).join('   •   ');const D=Math.max(14,Math.round(tx.length*.3));let h='';
   if(tk.on!==false&&tx)h='<div class="tkr" style="background:'+esc(tk.color||'#1e3a8a')+'"><span class="tkl">📢 বিজ্ঞপ্তি</span><div class="tkw"><div class="tkt" style="animation-duration:'+D+'s;animation-delay:-'+((performance.now()/1000)%D).toFixed(2)+'s">'+esc(tx)+'</div></div></div>';
   if(editor)h+='<div class="row" style="margin:6px 0"><button data-a="tkt" class="mini">⚙ বিজ্ঞপ্তি-পট্টি সেটিং (চালু/বন্ধ, রং)</button></div>'+(ui.tkset?tkSet():'');
@@ -271,9 +271,27 @@ function noticeHtml(){const n=S.notices||[];if(!n.length&&!editor)return '';
 const rgs=d=>'শুক্রবার ('+fd(d)+') – শনিবার ('+fd(addD(d,1))+')';
 const gap=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
 function spInfo(x,sp){const p=P(x.duty)||{},n=sp.find(z=>z.date>x.date&&z.duty===x.duty);return (p.bp?'বিপি-'+esc(p.bp)+' · ':'')+(n?'পরের বিশেষ ডিউটি '+bn(gap(x.date,n.date))+' দিন পরে ('+fd(n.date)+')':'পরের বিশেষ ডিউটি নির্ধারিত নয়')}
-function leaveStats(){const t=iso(new Date());return lvIds().map(id=>{const p=P(id);let now=false,last=null;(S.leaves||[]).filter(l=>l.pid===id).forEach(l=>lspans(l).forEach(x=>{if(x[0]>t)return;if(x[1]>=t)now=true;const e=x[1]<t?x[1]:t;if(!last||e>last)last=e}));const base=last||p.join||S.start;return {id:id,now:now,never:!last,last:last,days:now?0:Math.max(0,gap(base,t))}}).sort((a,b)=>b.days-a.days)}
+const prAuto=p=>!!p&&(elig(p,iso(new Date()))||elig(p,nextF())||!!p.sp);
+const prIn=p=>prAuto(p)||!!p.pr;
+const PR_NOTE='ঢাকার বাইরের ইউনিটের পত্র গ্রহণ ও বিতরণ রোস্টার ডিউটি ও বিশেষ ডিউটির অন্তর্ভুক্ত না থাকায় উক্ত সদস্য ছুটির অগ্রাধিকারে আসবেন না।';
+const PR_NOTE_G='ঢাকার বাইরের ইউনিটের পত্র গ্রহণ ও বিতরণ রোস্টার ডিউটি ও বিশেষ ডিউটির অন্তর্ভুক্ত না থাকায় নিচের সদস্যরা ছুটির অগ্রাধিকারে আসবেন না।';
+function prInfo(id){const all=leaveStats(),st=all.find(x=>x.id===id);if(!st)return '';if(st.pr){const r=all.filter(x=>x.pr).findIndex(x=>x.id===id);return 'ক্রম '+bn(r+1)+(r<3&&!st.now?' ⭐ বেশি অগ্রাধিকার':'')+(st.auto?'':' (ম্যানুয়ালি যুক্ত)')}return (editor||S.prShow===true)?'আসবেন না — রোস্টার ডিউটি ও বিশেষ ডিউটির অন্তর্ভুক্ত নন':''}
+function leaveStats(){const t=iso(new Date());return lvIds().map(id=>{const p=P(id);let now=false,last=null;(S.leaves||[]).filter(l=>l.pid===id).forEach(l=>lspans(l).forEach(x=>{if(x[0]>t)return;if(x[1]>=t)now=true;const e=x[1]<t?x[1]:t;if(!last||e>last)last=e}));const base=last||p.join||S.start;return {id:id,now:now,never:!last,last:last,pr:prIn(p),auto:prAuto(p),days:now?0:Math.max(0,gap(base,t))}}).sort((a,b)=>b.days-a.days)}
 const stTxt=s=>s.now?'এখন ছুটিতে':s.never?'ছুটির রেকর্ড নেই — '+bn(s.days)+' দিন':fd(s.last)+' ('+bn(s.days)+' দিন আগে)';
-function prioHtml(){const ls=leaveStats();return '<h2>⭐ ছুটিতে অগ্রাধিকার</h2><div class="sub">যিনি যত বেশি দিন ছুটিতে যাননি, তিনি তত বেশি অগ্রাধিকার পাবেন।</div><div class="card tw"><table><tr><th>ক্রম</th><th>নাম</th><th>শেষ ছুটি</th><th>ছুটি যাননি (দিন)</th><th>অগ্রাধিকার</th></tr>'+ls.map((s,i)=>'<tr><td>'+bn(i+1)+'</td><td><span class="ia">'+avt(s.id,22)+'<span data-a="prof" data-id="'+s.id+'" class="lk2">'+esc(fullnm(s.id))+'</span></span></td><td>'+(s.now?'এখন ছুটিতে':s.never?'রেকর্ড নেই':fd(s.last))+'</td><td>'+bn(s.days)+'</td><td>'+(i<3&&!s.now?'⭐ বেশি অগ্রাধিকার':s.now?'—':'')+'</td></tr>').join('')+'</table></div>'}
+function prioHtml(){
+  const all=leaveStats(),ins=all.filter(s=>s.pr),outs=all.filter(s=>!s.pr),canSee=outs.length>0&&(editor||S.prShow===true);
+  let h='<h2>⭐ ছুটিতে অগ্রাধিকার</h2><div class="sub">যিনি যত বেশি দিন ছুটিতে যাননি, তিনি তত বেশি অগ্রাধিকার পাবেন। শুধু রোস্টার ডিউটি বা বিশেষ ডিউটির সদস্যরা এই তালিকায় আসেন।</div>';
+  h+='<div class="row" style="margin:8px 0 6px"><span class="chip c1">অগ্রাধিকারে '+bn(ins.length)+' জন</span>'+(canSee?'<span class="chip c3">বাইরে '+bn(outs.length)+' জন</span>':'')+'</div>';
+  h+='<div class="card tw"><table><tr><th>ক্রম</th><th>নাম</th><th>শেষ ছুটি</th><th>ছুটি যাননি (দিন)</th><th>অগ্রাধিকার</th></tr>'+(ins.length?ins.map((s,i)=>{const p=P(s.id)||{},man=!s.auto&&p.pr;return '<tr><td>'+bn(i+1)+'</td><td style="white-space:normal;min-width:130px"><span class="ia">'+avt(s.id,22)+'<span data-a="prof" data-id="'+s.id+'" class="lk2">'+esc(fullnm(s.id))+'</span></span>'+(man?'<div style="margin-top:3px"><span class="chip c4">ম্যানুয়ালি যুক্ত</span>'+(p.prn?' <span class="sub">'+esc(p.prn)+'</span>':'')+'</div>':'')+'</td><td>'+(s.now?'এখন ছুটিতে':s.never?'রেকর্ড নেই':fd(s.last))+'</td><td>'+bn(s.days)+'</td><td>'+(i<3&&!s.now?'⭐ বেশি অগ্রাধিকার':s.now?'—':'')+'</td></tr>'}).join(''):'<tr><td colspan="5">অগ্রাধিকারের তালিকায় কোনো সদস্য নেই</td></tr>')+'</table></div>';
+  if(canSee){
+    h+='<div class="row" style="margin:0 0 8px"><button data-a="prout"'+(ui.prOut?' class="pri"':'')+'>👥 অগ্রাধিকারের বাইরের সদস্য '+(ui.prOut?'লুকান':'দেখুন')+' ('+bn(outs.length)+')</button></div>';
+    if(ui.prOut){
+      h+='<div class="card"><div class="ct">অগ্রাধিকারের বাইরে ('+bn(outs.length)+' জন)</div><div class="note n2c">ℹ '+PR_NOTE_G+'</div>'
+        +outs.map(s=>'<div class="ni"><div class="ia" style="display:flex;gap:8px">'+avt(s.id,26)+'<span data-a="prof" data-id="'+s.id+'" class="lk2">'+esc(fullnm(s.id))+'</span><span class="chip c4">অগ্রাধিকারের বাইরে</span></div></div>').join('')
+        +(editor?'<div class="sub" style="margin-top:8px">'+(S.prShow===true?'👁 এই তালিকা এখন সবাই দেখতে পাচ্ছেন।':'🔒 এই তালিকা এখন শুধু অ্যাডমিন/এডিটররা দেখছেন।')+'</div>'+(canSet()?'<div class="row"><button class="mini" data-a="prvis">'+(S.prShow===true?'শুধু অ্যাডমিনকে দেখান':'সবাইকে দেখান')+'</button></div>':''):'')+'</div>';
+    }
+  }
+  return h}
 const cdW=w=>{const t=iso(new Date());if(t>=w.date&&t<=addD(w.date,1))return 'চলছে';return w.date>t?'আর '+bn(gap(t,w.date))+' দিন পর':''};
 const cdS=x=>{const t=iso(new Date());return x.date===t?'আজ':x.date>t?'আর '+bn(gap(t,x.date))+' দিন পর':''};
 const ml=(k,n,tot)=>{const ini=initN(k);return (tot>n||n>ini)?'<div class="row">'+(tot>n?'<button data-a="more" data-k="'+k+'">⬇ আরও দেখুন</button>':'')+(n>ini?'<button data-a="less" data-k="'+k+'">⬆ কম দেখুন</button>':'')+'</div>':''};
@@ -291,9 +309,9 @@ function heroHtml(out,sp){
   const sx=sp.find(x=>x.date===today&&x.duty);
   if(sx)h+='<div class="note" style="background:var(--acbg);color:var(--tx)">⭐ আজ বিশেষ ডিউটি ('+esc(sx.name)+'): <b>'+esc(fullnm(sx.duty))+'</b></div>';
   let r='';
-  if(editor&&on)r+='<button data-a="st" data-v="in">✅ আছেন</button><button data-a="st" data-v="out">❌ নেই</button><button data-a="st" data-v="">মুছো</button>';
+  if(editor&&on)r+='<button data-a="st" data-v="in">✅ আছেন</button><button data-a="st" data-v="out">❌ নেই</button><button data-a="st" data-v="">মুছুন</button>';
   if(w&&who){const hm=(on?'আজকের রোস্টার ডিউটি: ':'আগামী রোস্টার ডিউটি: ')+fullnm(who)+' — '+rgs(w.date)+(on?' ('+stT+')':'');
-    r+='<button class="wa" data-a="wa" data-u="https://wa.me/?text='+encodeURIComponent(hm)+'" data-m="আপনি কি ডিউটির তথ্য WhatsApp-এ জানাতে চান?">WhatsApp-এ জানাও</button>'+(vcall()?callBtn(who,'📞 ডিউটিকারীকে কল'):'')}
+    r+='<button class="wa" data-a="wa" data-u="https://wa.me/?text='+encodeURIComponent(hm)+'" data-m="আপনি কি ডিউটির তথ্য WhatsApp-এ জানাতে চান?">WhatsApp-এ জানান</button>'+(vcall()?callBtn(who,'📞 ডিউটিকারীকে কল'):'')}
   if(S.office)r+='<button data-a="call" data-cn="'+esc(String(S.office).replace(/[^\d+]/g,''))+'" data-p="অফিসের সরকারি নম্বর">☎ অফিস: '+esc(S.office)+'</button>';
   return h+(r?'<div class="row">'+r+'</div>':'')+'</div>'}
 const exw=(w,cur)=>ui.xw[w.date]!==undefined?ui.xw[w.date]:w.date===cur;
@@ -307,11 +325,11 @@ function weekCard(w,cur,all,ser){
   if(w.mk)h+='<div class="note n2c">↩ '+esc(fullnm(w.mkfor))+'-এর বদলি ডিউটির বিনিময়ে এই সপ্তাহ</div>';
   if(w.man)h+='<div class="note n2c">✍ ম্যানুয়াল এন্ট্রি'+(S.manual[w.date]&&S.manual[w.date].note?': '+esc(S.manual[w.date].note):'')+(w.manfor?' (নির্ধারিত ছিল: '+esc(fullnm(w.manfor))+')':'')+(editor?' <b data-a="mrm" data-d="'+w.date+'" class="lk">✕</b>':'')+'</div>';
   [['f',w.date,w.fri],['s',sat,w.sat]].forEach(x=>{if(x[2]&&x[2]!==w.duty)h+='<div class="note n2c">📆 শুধু <b>'+(x[0]==='f'?'শুক্রবার':'শনিবার')+'</b> ('+fd(x[1])+'): <b>'+esc(fullnm(x[2]))+'</b> ডিউটি করছেন'+(dayRs(w,x[0])?' <span>('+esc(dayRs(w,x[0]))+')</span>':'')+(editor?' <b data-a="rmday" data-d="'+x[1]+'" class="lk">✕</b>':'')+'</div>'});
-  if(S.att[w.date]||S.att[sat])h+='<div class="sent">শুক্র: '+(S.att[w.date]?'✅ উপস্থিত':'—')+' · শনি: '+(S.att[sat]?'✅ উপস্থিত':'—')+' (এডমিন নিশ্চিত)</div>';
+  if(S.att[w.date]||S.att[sat])h+='<div class="sent">শুক্র: '+(S.att[w.date]?'✅ উপস্থিত':'—')+' · শনি: '+(S.att[sat]?'✅ উপস্থিত':'—')+' (অ্যাডমিন নিশ্চিত)</div>';
   if(S.sent[w.date])h+='<div class="sent">✓ মেসেজ পাঠানো হয়েছে ('+esc(S.sent[w.date])+')'+(editor?' <button data-a="unsent" data-d="'+w.date+'" class="mini">ভুল হয়েছে</button>':'')+'</div>';
   if(open&&w.duty){
     const wab=(id,m,q)=>'<button class="wa" data-a="wa" data-u="'+esc(waUrl(id,m))+'" data-m="'+esc(q)+'">WhatsApp: '+esc((P(id)||{}).name)+'</button>'+callBtn(id);
-    h+='<div class="row">'+wab(w.duty,msgDuty(w),'আপনি কি '+fullnm(w.duty)+'-কে '+(w.date>cur?'আগামী':w.date===cur?'এই':'ওই')+' সপ্তাহের রোস্টার ডিউটি জানাতে চান?')+'<button data-a="sent" data-d="'+w.date+'">✓ পাঠানো চিহ্নিত করো</button></div>';
+    h+='<div class="row">'+wab(w.duty,msgDuty(w),'আপনি কি '+fullnm(w.duty)+'-কে '+(w.date>cur?'আগামী':w.date===cur?'এই':'ওই')+' সপ্তাহের রোস্টার ডিউটি জানাতে চান?')+'<button data-a="sent" data-d="'+w.date+'">✓ পাঠানো চিহ্নিত করুন</button></div>';
     ['f','s'].forEach(k=>{const id=k==='f'?w.fri:w.sat;if(id&&id!==w.duty)h+='<div class="row">'+wab(id,msgDay(w,k),'আপনি কি '+fullnm(id)+'-কে শুধু '+dayNm(w,k)+' ডিউটির মেসেজ পাঠাতে চান?')+'</div>'});
     w.sk.forEach(id=>{h+='<div class="row">'+wab(id,msgAbs(w,id,all),'আপনি কি '+fullnm(id)+'-কে তাঁর অনুপস্থিতির বিষয়ে ও পরবর্তী ডিউটির তথ্য জানাতে চান?')+'</div>'});
     h+='<div class="row"><button data-a="abs" data-d="'+w.date+'">🚫 পুরো সপ্তাহ অনুপস্থিত</button><button data-a="dayd" data-d="'+w.date+'">↔ শুধু শুক্রবার বদলি</button><button data-a="dayd" data-d="'+sat+'">↔ শুধু শনিবার বদলি</button></div>';
@@ -354,11 +372,11 @@ function spTab(sp,cur){
   return h+spTable(sp)}
 function spTable(sp){const R=exRange(),t=iso(new Date()),srows=sp.filter(x=>x.date>=R.from&&x.date<=R.to),pn=id=>'<span class="ia">'+avt(id,22)+'<span data-a="prof" data-id="'+id+'" class="lk2">'+esc(fullnm(id))+'</span></span>';
   return '<h2>বিশেষ ডিউটির হিসাব</h2><div class="row" style="margin:0 0 8px"><button class="pri" data-a="xls">📥 এক্সেল (.xlsx) ডাউনলোড</button><button data-a="pdf">🖨 PDF/প্রিন্ট (ছবিসহ)</button></div>'+'<div class="sub">বিশেষ ডিউটির তালিকা ('+bn(srows.length)+' দিন)</div><div class="card tw"><table><tr><th>ক্রম</th><th>তারিখ</th><th>কোন ছুটি</th><th>ডিউটিকারী</th><th>অবস্থা</th><th>উপস্থিতি</th><th>মন্তব্য</th></tr>'
-   +srows.map((x,i)=>'<tr><td>'+bn(i+1)+'</td><td>'+fd(x.date)+'<br>'+wkdn(x.date)+'</td><td>'+esc(x.name)+'</td><td>'+(x.duty?pn(x.duty):'—')+'</td><td>'+(x.date<t?'✅ সম্পন্ন':x.date===t?'🔵 আজ':'🗓 নির্ধারিত')+'</td><td>'+(S.att[x.date]?'✅':'—')+'</td><td>'+((x.sk&&x.sk.length?esc(x.sk.map(fullnm).join(', '))+' অনুপস্থিত ('+esc(x.rs)+') — বদলি':'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'এডমিন নির্ধারিত':'')||'—')+'</td></tr>').join('')+'</table></div>'}
+   +srows.map((x,i)=>'<tr><td>'+bn(i+1)+'</td><td>'+fd(x.date)+'<br>'+wkdn(x.date)+'</td><td>'+esc(x.name)+'</td><td>'+(x.duty?pn(x.duty):'—')+'</td><td>'+(x.date<t?'✅ সম্পন্ন':x.date===t?'🔵 আজ':'🗓 নির্ধারিত')+'</td><td>'+(S.att[x.date]?'✅':'—')+'</td><td>'+((x.sk&&x.sk.length?esc(x.sk.map(fullnm).join(', '))+' অনুপস্থিত ('+esc(x.rs)+') — বদলি':'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'অ্যাডমিন নির্ধারিত':'')||'—')+'</td></tr>').join('')+'</table></div>'}
 const exs=(x,t)=>ui.xs[x.date]!==undefined?ui.xs[x.date]:x.date===t;
 function spFull(x,sp,t,upc){return '<div class="wk"><div class="wh"'+(x.date<t?' data-a="xs" data-d="'+x.date+'"':'')+'>'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'')+'<div class="db"><b>'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+'</b><i>'+wkdn(x.date)+'</i>'+(cdS(x)?'<em class="cd2">'+cdS(x)+'</em>':'')+'</div><div class="wm">'+(x.duty?avt(x.duty,42)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+x.duty+'" class="lk2">'+esc(fullnm(x.duty))+'</span></div><div class="sub">'+esc(x.name)+'</div><div class="sub">'+spInfo(x,sp)+'</div></div>':'<div class="sub">'+esc(x.name)+' — কেউ নেই</div>')+'</div><div class="ws">'+(x.date<t?'<span class="chip c2">সম্পন্ন</span>':x.date===t?'<span class="chip c1">আজ</span>':'<span class="chip c3">নির্ধারিত</span>')+(!editor&&vcall()&&x.duty?'<div style="margin-top:4px;text-align:right">'+callBtn(x.duty,'📞','mini')+'</div>':'')+'</div></div>'
-    +(x.sk&&x.sk.length?'<div class="note">🔁 <b>'+esc(x.sk.map(fullnm).join(', '))+'</b> অনুপস্থিত ('+esc(x.rs||'')+') — <b>'+esc(x.duty?fullnm(x.duty):'বদলি নেই')+'</b> ডিউটি করছেন</div>':'')+(x.ov?'<div class="note n2c">✍ এডমিন নির্ধারিত</div>':'')+(S.att[x.date]?'<div class="sent">✅ উপস্থিত হয়ে ডিউটি করেছেন (এডমিন নিশ্চিত)</div>':'')+(S.spsent[x.date]?'<div class="sent">✓ মেসেজ পাঠানো হয়েছে ('+esc(S.spsent[x.date])+')</div>':'')
-    +(editor&&x.duty?'<div class="row"><button class="wa" data-a="wa" data-u="'+esc(waUrl(x.duty,msgSp(x)))+'" data-m="'+esc('আপনি কি '+fullnm(x.duty)+'-কে '+fd(x.date)+' তারিখের বিশেষ ডিউটি জানাতে চান?')+'">WhatsApp-এ পাঠাও</button>'+callBtn(x.duty)+'<button data-a="spsent" data-d="'+x.date+'">✓ পাঠানো</button><button data-a="spdlg" data-d="'+x.date+'">🔁 ব্যক্তি বদলান</button><button data-a="att" data-d="'+x.date+'">'+(S.att[x.date]?'↩ উপস্থিতি বাতিল':'☑ উপস্থিত হয়ে ডিউটি করেছেন')+'</button></div>':'')+'</div>'}
+    +(x.sk&&x.sk.length?'<div class="note">🔁 <b>'+esc(x.sk.map(fullnm).join(', '))+'</b> অনুপস্থিত ('+esc(x.rs||'')+') — <b>'+esc(x.duty?fullnm(x.duty):'বদলি নেই')+'</b> ডিউটি করছেন</div>':'')+(x.ov?'<div class="note n2c">✍ অ্যাডমিন নির্ধারিত</div>':'')+(S.att[x.date]?'<div class="sent">✅ উপস্থিত হয়ে ডিউটি করেছেন (অ্যাডমিন নিশ্চিত)</div>':'')+(S.spsent[x.date]?'<div class="sent">✓ মেসেজ পাঠানো হয়েছে ('+esc(S.spsent[x.date])+')</div>':'')
+    +(editor&&x.duty?'<div class="row"><button class="wa" data-a="wa" data-u="'+esc(waUrl(x.duty,msgSp(x)))+'" data-m="'+esc('আপনি কি '+fullnm(x.duty)+'-কে '+fd(x.date)+' তারিখের বিশেষ ডিউটি জানাতে চান?')+'">WhatsApp-এ পাঠান</button>'+callBtn(x.duty)+'<button data-a="spsent" data-d="'+x.date+'">✓ পাঠানো</button><button data-a="spdlg" data-d="'+x.date+'">🔁 ব্যক্তি বদলান</button><button data-a="att" data-d="'+x.date+'">'+(S.att[x.date]?'↩ উপস্থিতি বাতিল':'☑ উপস্থিত হয়ে ডিউটি করেছেন')+'</button></div>':'')+'</div>'}
 function spRow(x,t,upc){return '<div class="cr" data-a="xs" data-d="'+x.date+'">'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'<div class="ser" style="opacity:.4">–</div>')+'<div class="cdt">'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+' ('+wkdn(x.date)+')</div>'+(cdS(x)?'<span class="cd2">'+cdS(x)+'</span>':'')+(x.duty?avt(x.duty,26)+'<div class="cnm">'+esc(fullnm(x.duty))+'</div>':'<div class="cnm sub">কেউ নেই</div>')+'<span class="chip c3">'+esc(x.name)+'</span></div>'}
 function calHtml(out,sp){
   const y=ui.cm.y,m=ui.cm.m,first=new Date(y,m,1),dim=new Date(y,m+1,0).getDate(),off=first.getDay(),tdy=iso(new Date());
@@ -380,7 +398,7 @@ function memberOf(l){const p=P(l.pid)||{};return {inR:elig(p,l.from)||elig(p,l.t
 function leaveNote(l,imp){
   const m=memberOf(l);
   if(!m.inR&&!m.inS)return '<div class="note n2c">ℹ উক্ত সদস্য সাপ্তাহিক রোস্টার ডিউটি বা বিশেষ রোস্টার ডিউটির অন্তর্ভুক্ত নন।</div>';
-  if(!imp.wk.length&&!imp.spd.length)return '<div class="note n2c">ℹ ছুটিকালীন সময়ে উক্ত সদস্যের সাপ্তাহিক রোস্টার ডিউটি/বিশেষ রোস্টার ডিউটি নাই।</div>';
+  if(!imp.wk.length&&!imp.spd.length)return '<div class="note n2c">ℹ ছুটিকালীন সময়ে উক্ত সদস্যের সাপ্তাহিক রোস্টার ডিউটি/বিশেষ রোস্টার ডিউটি নেই।</div>';
   const opt=(cu,ex)=>S.people.filter(p=>!p.gone&&p.id!==ex).map(p=>'<option value="'+p.id+'"'+(cu===p.id?' selected':'')+'>'+esc(fullnm(p.id))+'</option>').join('');
   let h='<div class="note">⚠ ছুটিকালীন সময়ে উক্ত সদস্যের '+(imp.wk.length?'সাপ্তাহিক রোস্টার ডিউটি':'')+(imp.wk.length&&imp.spd.length?' ও ':'')+(imp.spd.length?'বিশেষ রোস্টার ডিউটি':'')+' আছে।'+(editor?' ডিউটি করার সদস্য বাছুন:':'')+'</div>';
   imp.wk.forEach(w=>{h+='<div class="note n2c">📋 রোস্টার: '+rgs(w.date)+' — <b>'+(w.duty?esc(fullnm(w.duty)):'কেউ নেই')+'</b> ডিউটি করবেন'+(editor?'<br><select data-a="cov" data-d="'+w.date+'"><option value="">বদলি: স্বয়ংক্রিয়</option>'+opt(S.sub[w.date],l.pid)+'</select>':'')+'</div>'});
@@ -414,24 +432,29 @@ function memTab(out,sp,cur){
   if(editor){h+='<div class="row"><button data-a="mordt">'+(ui.mord?'✔ সাজানো শেষ':'🔀 ক্রম সাজান (ড্র্যাগ)')+'</button></div>';if(ui.mord)return h+'<div class="sub">⠿ ধরে টেনে বা ▲▼ চেপে ক্রম সাজান — সবাই এই ক্রমেই দেখবে, এক্সেলেও এই ক্রম আসবে।</div>'+ordList('mem')}
   return h+'<div class="wlist">'+ids.map((id,ix)=>{const p=P(id),on=elig(p,cur)||elig(p,nextF());
     return '<div class="card mc" data-a="prof" data-id="'+id+'"><div class="ser">'+bn(ix+1)+'</div>'+avt(id,52)+'<div style="flex:1"><div class="n1">'+esc(fullnm(id))+tg(id)+'</div>'+(p.role?'<div style="font-size:13px">'+esc(p.role)+'</div>':'')+'<div class="sub">'+(p.bp?'বিপি-'+esc(p.bp):'বিপি নম্বর নেই')+(p.sup?' · তদারকি: '+esc(p.sup):'')+'</div></div><div class="tc">'+(on?'<span class="tag">রোস্টার</span>':'')+(p.sp?'<span class="tag">বিশেষ</span>':'')+'</div></div>'}).join('')+'</div>'}
+function prForm(p,i){
+  if(p.gone)return '';
+  if(prAuto(p))return '<div class="sub" style="margin-top:6px">⭐ ছুটির অগ্রাধিকার: স্বয়ংক্রিয় (রোস্টার/বিশেষ ডিউটিতে আছেন)</div>';
+  return '<div class="sub" style="margin-top:6px">ছুটির অগ্রাধিকার: রোস্টার ও বিশেষ ডিউটিতে নেই, তাই অগ্রাধিকারে আসবেন না।</div><div class="row" style="margin-top:4px"><label><input type="checkbox" data-f="pr" data-i="'+i+'"'+(p.pr?' checked':'')+'> ছুটিতে অগ্রাধিকার দিন</label></div><input data-f="prn" data-i="'+i+'" class="fw" value="'+esc(p.prn||'')+'" placeholder="অগ্রাধিকারের কারণ (ঐচ্ছিক)">'}
 function personForm(p,i){
   const f=(k,ph,t)=>'<input data-f="'+k+'" data-i="'+i+'" value="'+esc(p[k]||'')+'" placeholder="'+ph+'"'+(t?' type="'+t+'"':'')+'>';
   return '<div class="pf">'+(p.ext?'<div class="sub">🆕 নিজে খোলা অ্যাকাউন্ট থেকে নেওয়া সদস্য</div>':'')+'<div class="g">'+f('name','নাম')+f('phone','মোবাইল','tel')+'</div><div class="g">'+f('des','পদবী (যেমন: কনস্টেবল)')+f('rn','পদবীর নম্বর')+'</div><div class="g">'+f('bp','বিপি নম্বর')+f('role','নিয়োজিত দায়িত্ব')+'</div>'+f('sup','তদারকি অফিসার')
    +'<div class="g"><select data-f="g" data-i="'+i+'"><option value="">লিঙ্গ</option><option value="m"'+(p.g==='m'?' selected':'')+'>পুরুষ</option><option value="f"'+(p.g==='f'?' selected':'')+'>মহিলা</option></select>'+f('join','','date')+'</div><div class="sub">বামে: লিঙ্গ · ডানে: শাখায় যোগদানের তারিখ</div>'
    +'<input type="file" accept="image/*" data-pf="'+i+'">'+(p.photo?'<img src="'+p.photo+'" style="width:56px;height:70px;object-fit:cover;border-radius:6px">':'')
-   +'<div class="row"><label><input type="checkbox" data-f="du" data-i="'+i+'"'+(elig(p,nextF())?' checked':'')+'> রোস্টার</label><label><input type="checkbox" data-f="sp" data-i="'+i+'"'+(p.sp?' checked':'')+'> বিশেষ ডিউটি</label><label><input type="checkbox" data-f="sr" data-i="'+i+'"'+(p.sr?' checked':'')+'> সিনিয়র</label><label><input type="checkbox" data-f="lv" data-i="'+i+'"'+(p.nl?'':' checked')+'> ছুটি</label><button data-a="rmp" data-i="'+i+'" class="mini">সরান</button></div></div>'}
+   +'<div class="row"><label><input type="checkbox" data-f="du" data-i="'+i+'"'+(elig(p,nextF())?' checked':'')+'> রোস্টার</label><label><input type="checkbox" data-f="sp" data-i="'+i+'"'+(p.sp?' checked':'')+'> বিশেষ ডিউটি</label><label><input type="checkbox" data-f="sr" data-i="'+i+'"'+(p.sr?' checked':'')+'> সিনিয়র</label><label><input type="checkbox" data-f="lv" data-i="'+i+'"'+(p.nl?'':' checked')+'> ছুটি</label><button data-a="rmp" data-i="'+i+'" class="mini">সরান</button></div>'+prForm(p,i)+'</div>'}
 function settingsHtml(){
   const tp=(id,l,v,ph)=>'<div class="sub" style="margin:8px 0 3px">'+l+'</div><textarea id="'+id+'" rows="3" class="ta" placeholder="'+ph+'">'+esc(v||'')+'</textarea>';
   return '<div class="card set"><div class="ct">⚙ সদস্য ও সেটিংস</div>'+S.people.map((p,i)=>p.gone?'':personForm(p,i)).join('')+'<div class="row"><button data-a="addp">+ নতুন সদস্য</button></div>'
    +'<div class="sub" style="margin-top:10px">অফিসের সরকারি নম্বর</div><input id="off" value="'+esc(S.office||'')+'" placeholder="যেমন 02-1234567" inputmode="tel">'
    +'<div class="row"><label><input type="checkbox" id="vc"'+(S.vcall!==false?' checked':'')+' style="width:auto"> দর্শকদের জন্য ছোট কল বাটন চালু</label></div>'
+   +'<div class="row"><label><input type="checkbox" id="pra"'+(S.prShow===true?' checked':'')+' style="width:auto"> অগ্রাধিকারের বাইরের সদস্যদের তালিকা সবাইকে দেখান</label></div><div class="sub">বন্ধ থাকলে শুধু অ্যাডমিন/এডিটররা এই তালিকা দেখবেন।</div>'
    +'<div class="sub" style="margin:8px 0 3px">প্রথম রোস্টারের শুক্রবার</div><input type="date" id="stt" value="'+esc(S.start)+'">'
    +tp('tpl','রোস্টার ডিউটির মেসেজ ({পদবী} {নাম} {বিপি} {শুক্র} {শনি})',S.tpl.duty,'ফাঁকা রাখলে ডিফল্ট')+tp('tplr','বদলি ডিউটির মেসেজ (+ {অনুপস্থিত} {কারণ})',S.tpl.rep,'ফাঁকা রাখলে ডিফল্ট')+tp('tpla','অনুপস্থিত জনের মেসেজ (+ {বদলি} {পরবর্তী} {কারণ})',S.tpl.abs,'ফাঁকা রাখলে ডিফল্ট')+tp('tpls','বিশেষ ডিউটির মেসেজ ({ছুটি} {তারিখ})',S.tpl.sp,'ফাঁকা রাখলে ডিফল্ট')
-   +'<div class="row"><button class="pri" data-a="save">সেভ করো</button></div></div>'}
+   +'<div class="row"><button class="pri" data-a="save">সংরক্ষণ করুন</button></div></div>'}
 
 function adminBar(){
   let h='<div class="row" style="justify-content:center;margin:22px 0 4px">'+(!db?'<span class="sub">Firebase কনফিগ বসানো হয়নি (শুধু দেখার মোড)</span>':editor?'<span class="sub" style="display:inline-flex;align-items:center;gap:6px">'+(isAdm?'':meAv())+(isAdm?'অ্যাডমিন: '+esc(adminEmail):'মডারেটর: '+esc(memLabel()))+'</span><button data-a="logout">লগআউট</button>'+(isAdm?'<button data-a="memadm">👥 সদস্য লগইন (<b id="mcnt">'+pendCnt()+'</b>)</button>':''):'<span class="sub" style="display:inline-flex;align-items:center;gap:6px">'+meAv()+'লগইন: '+esc(memLabel())+'</span><button data-a="logout">লগআউট</button>')+'</div>';
-  return h+(('wakeLock' in navigator)?'<div class="row" style="justify-content:center;margin:4px 0"><label class="sub"><input type="checkbox" id="wlt"'+(wlWant()?' checked':'')+' style="width:auto"> ☀ স্ক্রিন চালু রাখুন (বন্ধ হবে না)</label></div>':'')+'<div class="ft">০৬/১১/২০২৬ খ্রীঃ থেকে কার্যকর<br>© সর্বস্বত্ব সংরক্ষিত — aruhul257@gmail.com</div>'}
+  return h+(('wakeLock' in navigator)?'<div class="row" style="justify-content:center;margin:4px 0"><label class="sub"><input type="checkbox" id="wlt"'+(wlWant()?' checked':'')+' style="width:auto"> ☀ স্ক্রিন চালু রাখুন (বন্ধ হবে না)</label></div>':'')+'<div class="ft">০৬/১১/২০২৬ খ্রি. থেকে কার্যকর<br>© সর্বস্বত্ব সংরক্ষিত — aruhul257@gmail.com</div>'}
 function dlgHtml(){
   const g=ui.dlg;if(!g)return '';let b='';
   const yn=(y,n)=>'<div class="row" style="justify-content:center"><button class="pri" data-a="'+y[0]+'">'+y[1]+'</button><button data-a="'+n[0]+'">'+n[1]+'</button></div>';
@@ -453,7 +476,7 @@ function dlgHtml(){
      +ln('পদবী',rk(g.id))+ln('নিয়োজিত দায়িত্ব',p.role)+ln('বিপি নম্বর',p.bp)+ln('লিঙ্গ',p.g==='m'?'👨 পুরুষ':p.g==='f'?'👩 মহিলা':'নির্ধারিত নয়')+ln('শাখায় যোগদান',p.join?fd(p.join):'')+ln('শাখায় সময়',sv)+ln('তদারকি অফিসার',p.sup)+(vcall()?ln('মোবাইল',p.phone):'')
      +ln('রোস্টারে আছেন',elig(p,cur)||elig(p,nextF())?'হ্যাঁ':'না')+ln('বিশেষ ডিউটি তালিকায়',p.sp?'হ্যাঁ':'না')
      +ln('রোস্টার ডিউটি সম্পন্ন',bn(c.r)+' সপ্তাহ')+ln('দিন বেশি/কম',exTxt(c))+ln('শেষ রোস্টার ডিউটি',lr?fd(lr.date):'')+ln('পরবর্তী রোস্টার',nr)+ln('বিশেষ ডিউটি সম্পন্ন',bn(c.s)+' বার')+ln('পরবর্তী বিশেষ ডিউটি',ns)
-     +ln('CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)','ভোগ '+bn(stt.clU)+' · বাকি '+(stt.clRem<0?'−'+bn(-stt.clRem)+' (বেশি)':bn(stt.clRem)))+ln(bn(y)+' সালে ছুটি','মোট '+bn(lvt)+' দিন'+(lvt?' ('+LT.filter(t=>lv[t]).map(t=>t+' '+bn(lv[t])).join(', ')+')':''))+(function(){const L=leaveStats(),ri=L.findIndex(x=>x.id===g.id),st=L[ri];return ln('শেষ ছুটি',stTxt(st))+ln('ছুটিতে অগ্রাধিকার','ক্রম '+bn(ri+1)+(ri<3&&!st.now?' ⭐ বেশি অগ্রাধিকার':''))})()
+     +ln('CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)','ভোগ '+bn(stt.clU)+' · বাকি '+(stt.clRem<0?'−'+bn(-stt.clRem)+' (বেশি)':bn(stt.clRem)))+ln(bn(y)+' সালে ছুটি','মোট '+bn(lvt)+' দিন'+(lvt?' ('+LT.filter(t=>lv[t]).map(t=>t+' '+bn(lv[t])).join(', ')+')':''))+(function(){const st=leaveStats().find(x=>x.id===g.id);return st?ln('শেষ ছুটি',stTxt(st))+ln('ছুটিতে অগ্রাধিকার',prInfo(g.id)):''})()
      +'<div class="row" style="justify-content:center">'+(vcall()?callBtn(g.id):'')+'<button data-a="pprint" data-id="'+g.id+'">🖨 প্রিন্ট</button><button data-a="dno">বন্ধ</button></div>'}
   else if(g.k==='day'){const wk=pd(g.d).getDay()===5?g.d:addD(g.d,-1),w=sim().find(x=>x.date===wk);if(!w)return '';const X=w.duty,fr=g.d===wk,o=S.day[g.d]||{};
     b='<div class="ic">↔</div><div class="dt">শুধু '+(fr?'শুক্রবার':'শনিবার')+' ('+fd(g.d)+') বদলি</div><div class="sub">নির্ধারিত: '+esc(fullnm(X))+'</div><div class="sub" style="text-align:left">কারণ</div><select id="drsn" class="fw">'+RS.map(r=>'<option'+(o.reason===r?' selected':'')+'>'+r+'</option>').join('')+'</select><input id="dnote" class="fw" placeholder="মন্তব্য (ঐচ্ছিক)" value="'+esc(o.note||'')+'"><div class="sub" style="text-align:left">ওই দিন কে ডিউটি করবেন?</div><select id="dsub" class="fw">'+S.people.filter(p=>!p.gone&&p.id!==X).map(p=>'<option value="'+p.id+'"'+(o.id===p.id?' selected':'')+'>'+esc(fullnm(p.id))+'</option>').join('')+'</select><div class="sub">শুধু ওই একদিনের জন্য মেসেজ যাবে। দিন বেশি/কম এক্সেলে ও হিসাবে দেখাবে।</div>'+yn(['dayyes','নিশ্চিত করুন'],['dno','বাতিল'])}
@@ -472,7 +495,7 @@ function dlgHtml(){
 function renderApp(){
   freezeSp();
   const cur=curFri(),out=sim(),sp=simSp();
-  const ctl=editor?'<div class="row">'+(canSet()?'<button data-a="set">'+(ui.showSet?'বন্ধ করো':'⚙ সদস্য ও সেটিংস')+'</button>':'')+'<button data-a="mdlg">✍ ম্যানুয়াল এন্ট্রি</button></div>':'';
+  const ctl=editor?'<div class="row">'+(canSet()?'<button data-a="set">'+(ui.showSet?'বন্ধ করুন':'⚙ সদস্য ও সেটিংস')+'</button>':'')+'<button data-a="mdlg">✍ ম্যানুয়াল এন্ট্রি</button></div>':'';
   const m=(editor&&canSet()&&ui.showSet?settingsHtml():'')+(ui.tab==='h'?homeTab(out,sp,cur):ui.tab==='r'?rosterTab(out,sp,cur):ui.tab==='s'?spTab(sp,cur):ui.tab==='c'?calHtml(out,sp):ui.tab==='l'?leaveTab(out,sp):memTab(out,sp,cur));
   $('app').innerHTML='<div class="colL"><div class="a-ban">'+banner()+'</div><div class="a-nt">'+tickerHtml()+noticeHtml()+'</div><div class="a-hero">'+heroHtml(out,sp)+ctl+'</div></div><div class="colR"><div class="a-tabs">'+tabsHtml()+'</div><div class="a-main">'+m+'</div></div><div class="a-ft">'+adminBar()+'</div>'+dlgHtml();tick();wxShow();
 }
@@ -480,17 +503,18 @@ let lastDay=iso(new Date());
 function tick(){const el=$('clk'),n=new Date();if(iso(n)!==lastDay){lastDay=iso(n);render();return}
   if(el)el.innerHTML='<b>'+n.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+'</b>'+n.toLocaleDateString('bn-BD',{weekday:'long'})+', '+fd(iso(n))}
 async function save(){
-  if(!db||!editor){alert('সেভ করার অনুমতি নেই, আবার লগইন করুন');return}
+  if(!db||!editor){alert('সংরক্ষণ করার অনুমতি নেই, আবার লগইন করুন');return}
   render();
-  try{await db.doc('roster/main').set({json:JSON.stringify(S),t:Date.now()})}catch(e){alert('সেভ হয়নি: '+(e.code||''))}pubWeek();
+  try{await db.doc('roster/main').set({json:JSON.stringify(S),t:Date.now()})}catch(e){alert('সংরক্ষণ হয়নি: '+(e.code||''))}pubWeek();
 }
 function collect(){
   if($('off'))S.office=$('off').value.trim();
   if($('vc'))S.vcall=$('vc').checked;
+  if($('pra'))S.prShow=$('pra').checked;
   if($('stt')&&$('stt').value)S.start=$('stt').value;
   if($('tpl'))S.tpl={duty:$('tpl').value.trim(),rep:$('tplr').value.trim(),abs:$('tpla').value.trim(),sp:$('tpls').value.trim()};
   document.querySelectorAll('.set [data-f]').forEach(el=>{const p=S.people[+el.dataset.i];if(!p)return;const f=el.dataset.f;
-    if(f==='du'){if(elig(p,nextF())!==el.checked)setDuty(p,el.checked)}else if(f==='sp'||f==='sr')p[f]=el.checked;else if(f==='lv')p.nl=!el.checked;else if(f==='name')p.name=el.value.trim()||p.name;else p[f]=el.value.trim()});
+    if(f==='du'){if(elig(p,nextF())!==el.checked)setDuty(p,el.checked)}else if(f==='sp'||f==='sr'||f==='pr')p[f]=el.checked;else if(f==='lv')p.nl=!el.checked;else if(f==='name')p.name=el.value.trim()||p.name;else p[f]=el.value.trim()});
 }
 function commitOrder(k,ids){
   if(!actOK(k==='mem'?'set':k==='sp'?'spot':'ordt')){alert('এই কাজের অনুমতি আপনার নেই');render();return}
@@ -561,7 +585,7 @@ document.addEventListener('click',e=>{
     bcgo(){ui.bc.text=$('bctx').value.trim();ui.bc.list=Object.keys(ui.bc.sel).filter(k=>ui.bc.sel[k]);if(!ui.bc.list.length||!ui.bc.text){alert('অন্তত একজনকে টিক দিন ও মেসেজ লিখুন');return}ui.bc.step=2;render()},
     bcsent(){ui.bc.sent[b.dataset.id]=1;setTimeout(render,0)},
     bcback(){ui.bc.step=1;render()},tall(){ui.tAll=!ui.tAll;render()},xw(){const cur=curFri();ui.xw[d]=!(ui.xw[d]!==undefined?ui.xw[d]:d===cur);render()},xs(){const t=iso(new Date());ui.xs[d]=!(ui.xs[d]!==undefined?ui.xs[d]:d===t);render()},mordt(){ui.mord=!ui.mord;render()},pdf(){printStatement()},
-    lvt(){ui.lvl=!ui.lvl;render()},lvht(){ui.lvh=!ui.lvh;render()},lmt(){ui.lmShow=!ui.lmShow;render()},pprint(){printProfile(b.dataset.id)},
+    lvt(){ui.lvl=!ui.lvl;render()},prout(){ui.prOut=!ui.prOut;render()},prvis(){if(!canSet()){alert('এই কাজের অনুমতি আপনার নেই');return}S.prShow=S.prShow!==true;save()},lvht(){ui.lvh=!ui.lvh;render()},lmt(){ui.lmShow=!ui.lmShow;render()},pprint(){printProfile(b.dataset.id)},
     xls(){dlXlsx()},
     login(){ui.lerr='';ui.dlg={k:'login'};render()},
     lgo(){auth.signInWithEmailAndPassword($('lem').value.trim(),$('lpw').value).then(()=>{ui.dlg=null;render()}).catch(()=>{ui.lerr='ইমেইল বা পাসওয়ার্ড ভুল';render()})},
@@ -645,10 +669,10 @@ function buildSheets(){
    rows.push({c:[]});rows.push({h:26,c:[{v:'বিশেষ ডিউটির ক্রম',s:5}]});rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','পরবর্তী বিশেষ ডিউটি']));
    spIds().forEach((id,i)=>{const x=sp.find(z=>z.date>=td&&z.duty===id);imgs.push({r:rows.length,c:1,pid:id});rows.push({h:42,c:[{v:i+1,s:4},{v:'',s:3},{v:fullnm(id),s:5},{v:bpv(id),s:4},{v:x?fd(x.date):'—',s:4}]})});
    sheets.push({name:'ডিউটির ক্রম',w:[6,8,34,16,20],rows:rows,imgs:imgs,merges:mg(5)})}
-  {const cols=['ক্রম','তারিখ','বার','কোন ছুটির জন্য বিশেষ ডিউটি','ছবি','ডিউটিকারী (পদবী/নাম)','বিপি নম্বর'].concat(ph?['মোবাইল']:[],['অবস্থা','উপস্থিতি','এডমিন নির্ধারিত','মেসেজ','পরের বিশেষ ডিউটি','কারণ / মন্তব্য']);
+  {const cols=['ক্রম','তারিখ','বার','কোন ছুটির জন্য বিশেষ ডিউটি','ছবি','ডিউটিকারী (পদবী/নাম)','বিপি নম্বর'].concat(ph?['মোবাইল']:[],['অবস্থা','উপস্থিতি','অ্যাডমিন নির্ধারিত','মেসেজ','পরের বিশেষ ডিউটি','কারণ / মন্তব্য']);
    const rows=head('বিশেষ ডিউটি (সরকারি ছুটির দিন) — স্টেটমেন্ট'),imgs=[];rows.push(hr(cols));let n=0;
    sp.filter(x=>x.date>=from&&x.date<=to).forEach(x=>{n++;if(x.duty)imgs.push({r:rows.length,c:4,pid:x.duty});
-     rows.push({h:42,c:[{v:n,s:4},{v:fd(x.date),s:4},{v:wkdn(x.date),s:4},{v:x.name,s:3},{v:'',s:3},{v:nm(x.duty),s:5},{v:bpv(x.duty),s:4}].concat(ph?[{v:phv(x.duty),s:4}]:[],[{v:x.date<td?'সম্পন্ন':x.date===td?'আজ':'নির্ধারিত',s:4},{v:S.att[x.date]?'উপস্থিত ✓':(x.date<td?'নিশ্চিত হয়নি':'—'),s:4},{v:x.ov?'হ্যাঁ':'—',s:4},{v:S.spsent[x.date]||'—',s:4},{v:(function(){const q=sp.find(z=>z.date>x.date&&z.duty===x.duty);return q?bn(gap(x.date,q.date))+' দিন পরে ('+fd(q.date)+')':'—'})(),s:4},{v:((x.sk&&x.sk.length?x.sk.map(fullnm).join(', ')+' অনুপস্থিত ('+x.rs+') — '+(x.duty?fullnm(x.duty)+' ডিউটি করেছেন':'বদলি নেই'):'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'এডমিন নির্ধারিত':''))||'—',s:3}])})});
+     rows.push({h:42,c:[{v:n,s:4},{v:fd(x.date),s:4},{v:wkdn(x.date),s:4},{v:x.name,s:3},{v:'',s:3},{v:nm(x.duty),s:5},{v:bpv(x.duty),s:4}].concat(ph?[{v:phv(x.duty),s:4}]:[],[{v:x.date<td?'সম্পন্ন':x.date===td?'আজ':'নির্ধারিত',s:4},{v:S.att[x.date]?'উপস্থিত ✓':(x.date<td?'নিশ্চিত হয়নি':'—'),s:4},{v:x.ov?'হ্যাঁ':'—',s:4},{v:S.spsent[x.date]||'—',s:4},{v:(function(){const q=sp.find(z=>z.date>x.date&&z.duty===x.duty);return q?bn(gap(x.date,q.date))+' দিন পরে ('+fd(q.date)+')':'—'})(),s:4},{v:((x.sk&&x.sk.length?x.sk.map(fullnm).join(', ')+' অনুপস্থিত ('+x.rs+') — '+(x.duty?fullnm(x.duty)+' ডিউটি করেছেন':'বদলি নেই'):'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'অ্যাডমিন নির্ধারিত':''))||'—',s:3}])})});
    sheets.push({name:'বিশেষ ডিউটি',w:[6,14,12,36,8,32,16].concat(ph?[15]:[],[12,14,14,14,26,44]),rows:rows,imgs:imgs,merges:mg(cols.length)})}
   {const cols=['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','নিয়োজিত দায়িত্ব','CL পাওনা','CL ভোগ','CL বাকি'].concat(LTS.map(t=>t==='CL+PL'?'CL+PL (যুক্ত)':t),['মোট ভোগ (দিন)']);
    const rows=head('ছুটির হিসাব — '+bn(y)+' সাল (CL বার্ষিক পাওনা '+bn(CLQ())+' দিন)'),imgs=[];rows.push(hr(cols));let n=0;
@@ -657,15 +681,16 @@ function buildSheets(){
    sheets.push({name:'ছুটির হিসাব',w:[6,8,34,16,24,12,12,14,10,10,10,10,14],rows:rows,imgs:imgs,merges:mg(13)})}
   {const rows=head('ছুটির বিস্তারিত তালিকা'),imgs=[];rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','ছুটির ধরন','তারিখ','মোট দিন','কর্মস্থলে হাজির (দুপুর ১২টার আগে)','রোস্টার / বিশেষ ডিউটি সংক্রান্ত মন্তব্য']));let n=0;
    (S.leaves||[]).slice().sort((a,b)=>a.from<b.from?1:-1).forEach(l=>{n++;const imp=leaveImpact(l,out,sp),m=memberOf(l),notes=[l.note];
-     if(!m.inR&&!m.inS)notes.push('উক্ত সদস্য সাপ্তাহিক রোস্টার/বিশেষ রোস্টার ডিউটির অন্তর্ভুক্ত নন');else if(!imp.wk.length&&!imp.spd.length)notes.push('ছুটিকালীন সময়ে সাপ্তাহিক রোস্টার/বিশেষ ডিউটি নাই');
+     if(!m.inR&&!m.inS)notes.push('উক্ত সদস্য সাপ্তাহিক রোস্টার/বিশেষ রোস্টার ডিউটির অন্তর্ভুক্ত নন');else if(!imp.wk.length&&!imp.spd.length)notes.push('ছুটিকালীন সময়ে সাপ্তাহিক রোস্টার/বিশেষ ডিউটি নেই');
      imp.wk.forEach(w=>notes.push('সাপ্তাহিক রোস্টার '+fd(w.date)+' ('+w.rs+') — বদলি: '+(w.duty?fullnm(w.duty):'নেই')));imp.spd.forEach(x=>notes.push('বিশেষ ডিউটি '+fd(x.date)+' ('+x.name+') — বদলি: '+(x.duty?fullnm(x.duty):'নেই')));
      imgs.push({r:rows.length,c:1,pid:l.pid});rows.push({h:46,c:[{v:n,s:4},{v:'',s:3},{v:fullnm(l.pid),s:5},{v:l.type,s:4},{v:lvText(l),s:3},{v:ltot(l),s:4},{v:fd(retDate(l)),s:4},{v:notes.filter(Boolean).join(' | ')||'—',s:3}]})});
    if((S.lvm||[]).length){rows.push({c:[]});rows.push({h:26,c:[{v:'ম্যানুয়ালি এন্ট্রি (পূর্বে ভোগ করা ছুটি)',s:5}]});rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','ছুটির ধরন','বছর','দিন','মন্তব্য']));n=0;
      S.lvm.forEach(m=>{n++;imgs.push({r:rows.length,c:1,pid:m.pid});rows.push({h:42,c:[{v:n,s:4},{v:'',s:3},{v:fullnm(m.pid),s:5},{v:m.type,s:4},{v:bn(m.year),s:4},{v:m.days,s:4},{v:m.note||'—',s:3}]})})}
    sheets.push({name:'ছুটির তালিকা',w:[6,8,34,14,48,10,24,64],rows:rows,imgs:imgs,merges:mg(8)})}
-  {const rows=head('ছুটিতে অগ্রাধিকার তালিকা'),imgs=[];rows.push(hr(['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','শেষ ছুটি','ছুটি যাননি (দিন)','অগ্রাধিকার']));
-   leaveStats().forEach((s,i)=>{imgs.push({r:rows.length,c:1,pid:s.id});rows.push({h:42,c:[{v:i+1,s:4},{v:'',s:3},{v:fullnm(s.id),s:5},{v:bpv(s.id),s:4},{v:s.now?'এখন ছুটিতে':s.never?'রেকর্ড নেই':fd(s.last),s:4},{v:s.days,s:4},{v:i<3&&!s.now?'⭐ বেশি অগ্রাধিকার':'—',s:4}]})});
-   sheets.push({name:'ছুটির অগ্রাধিকার',w:[6,8,34,16,18,18,22],rows:rows,imgs:imgs,merges:mg(7)})}
+  {const rows=head('ছুটিতে অগ্রাধিকার তালিকা'),imgs=[],all=leaveStats(),ins=all.filter(s=>s.pr),outs=all.filter(s=>!s.pr),showOut=outs.length>0&&(editor||S.prShow===true),H=['ক্রম','ছবি','নাম (পদবীসহ)','বিপি নম্বর','শেষ ছুটি','ছুটি যাননি (দিন)','অগ্রাধিকার'],cell=(s,i,last)=>({h:42,c:[{v:i+1,s:4},{v:'',s:3},{v:fullnm(s.id),s:5},{v:bpv(s.id),s:4},{v:s.now?'এখন ছুটিতে':s.never?'রেকর্ড নেই':fd(s.last),s:4},{v:s.days,s:4},{v:last,s:4}]});rows.push(hr(H));
+  ins.forEach((s,i)=>{const p=P(s.id)||{};imgs.push({r:rows.length,c:1,pid:s.id});rows.push(cell(s,i,i<3&&!s.now?'⭐ বেশি অগ্রাধিকার':s.auto?'—':'ম্যানুয়ালি যুক্ত'+(p.prn?' — '+p.prn:'')))});
+  if(showOut){rows.push({c:[]});rows.push({h:26,c:[{v:'অগ্রাধিকারের বাইরে — '+PR_NOTE_G,s:5}]});rows.push(hr(H));outs.forEach((s,i)=>{imgs.push({r:rows.length,c:1,pid:s.id});rows.push(cell(s,i,'বাইরে'))})}
+  sheets.push({name:'ছুটির অগ্রাধিকার',w:[6,8,34,16,18,18,26],rows:rows,imgs:imgs,merges:mg(7)})}
   return sheets}
 function makeXlsx(){
   const sheets=buildSheets(),enc=new TextEncoder(),U=s=>enc.encode(s),files=[],mediaMap={},media=[],X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
@@ -712,7 +737,7 @@ function profileHtml(id){const p=P(id)||{},y=new Date().getFullYear(),out=sim(),
   return '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>সদস্য পরিচিতি</title><style>@page{size:A4;margin:14mm}body{font-family:"Noto Sans Bengali","Nirmala UI",sans-serif;color:#111;font-size:13px}.hd{display:flex;align-items:center;gap:12px;border-bottom:3px solid #1e3a8a;padding-bottom:8px}.hd img{width:62px}.hd h1{margin:0;font-size:18px;color:#1e3a8a}.hd div{font-size:12px;color:#333}h2{text-align:center;font-size:16px;margin:12px 0 8px;border:1px solid #999;padding:4px;background:#eee}.top{display:flex;gap:16px;align-items:flex-start}.ph{width:118px;height:148px;object-fit:cover;border:2px solid #444}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:5px 8px;text-align:left;vertical-align:top}th{background:#eee;width:36%}.s{font-weight:700;margin-top:10px}.ft{margin-top:18px;font-size:11px;color:#444;text-align:right}</style></head><body><div class="hd"><img src="'+LOGO+'"><div><h1>পুলিশ হেডকোয়ার্টার্স</h1><div>কেন্দ্রীয় ডেসপাচ শাখা</div></div></div><h2>সদস্য পরিচিতি বিবরণ</h2>'
    +'<div class="top"><img class="ph" src="'+photoUrl(id)+'"><table>'+row('নাম',p.name)+row('পদবী',rk(id))+row('বিপি নম্বর',p.bp)+row('নিয়োজিত দায়িত্ব',p.role)+row('লিঙ্গ',p.g==='m'?'পুরুষ':p.g==='f'?'মহিলা':'')+row('শাখায় যোগদান',p.join?fd(p.join):'')+row('শাখায় সময়',sv)+row('তদারকি অফিসার',p.sup)+(vcall()?row('মোবাইল',p.phone):'')+'</table></div>'
    +'<div class="s">ডিউটির তথ্য</div><table>'+row('রোস্টারে আছেন',inR?'হ্যাঁ':'না')+row('বিশেষ ডিউটি তালিকায়',p.sp?'হ্যাঁ':'না')+row('রোস্টার ডিউটি সম্পন্ন',bn(c.r)+' সপ্তাহ')+row('বিশেষ ডিউটি সম্পন্ন',bn(c.s)+' বার')+row('দিন বেশি/কম',exTxt(c))+row('পরবর্তী রোস্টার',nr?fd(nr.date):'')+row('পরবর্তী বিশেষ ডিউটি',ns?fd(ns.date)+' ('+ns.name+')':'')+'</table>'
-   +'<div class="s">ছুটির হিসাব — '+bn(y)+' সাল</div><table><tr><th>CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)</th><td>ভোগ '+bn(st.clU)+' · বাকি '+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</td></tr><tr><th>PL / CL+PL (যুক্ত) / LAP / RRL</th><td>'+bn(st.c.PL||0)+' / '+bn(st.c['CL+PL']||0)+' / '+bn(st.c.LAP||0)+' / '+bn(st.c.RRL||0)+' দিন</td></tr><tr><th>মোট ছুটি ভোগ</th><td>'+bn(st.tot)+' দিন</td></tr>'+(L?row('শেষ ছুটি',stTxt(L)):'')+'</table>'
+   +'<div class="s">ছুটির হিসাব — '+bn(y)+' সাল</div><table><tr><th>CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)</th><td>ভোগ '+bn(st.clU)+' · বাকি '+(st.clRem<0?'−'+bn(-st.clRem)+' (বেশি)':bn(st.clRem))+'</td></tr><tr><th>PL / CL+PL (যুক্ত) / LAP / RRL</th><td>'+bn(st.c.PL||0)+' / '+bn(st.c['CL+PL']||0)+' / '+bn(st.c.LAP||0)+' / '+bn(st.c.RRL||0)+' দিন</td></tr><tr><th>মোট ছুটি ভোগ</th><td>'+bn(st.tot)+' দিন</td></tr>'+(L?row('শেষ ছুটি',stTxt(L))+row('ছুটিতে অগ্রাধিকার',prInfo(id)):'')+'</table>'
    +'<div class="ft">প্রিন্টের তারিখ: '+fd(td)+', '+bn(String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'))+'</div></body></html>'}
 function printProfile(id){printHtml(profileHtml(id))}
 let wlk=null;
@@ -899,16 +924,16 @@ function drawMem(){
   let lg=-1;const tab=window._mt||'pend';const LV=L.filter(m=>tab==='ext'?grp(m)>0:grp(m)===0);
   const allH=(LV.length?LV.map(m=>{
     const p=pOfM(m),id=m.id,k=grp(m);
-    const st=m.banned?'<span class="chip c3">⛔ ব্যান</span>':m.approved?'<span class="chip c2">অনুমোদিত</span>':'<span class="chip c3">অপেক্ষায়</span>';
+    const st=m.banned?'<span class="chip c3">⛔ নিষিদ্ধ</span>':m.approved?'<span class="chip c2">অনুমোদিত</span>':'<span class="chip c3">অপেক্ষায়</span>';
     const pl=plOf(m),md=m.role==='mod'?' <span class="chip c1">🛡 মডারেটর ('+bn(pl.length)+' ক্ষমতা)</span>':'';
     const op=window._mo&&window._mo[id]?' open':'';
     const pn='<details data-mid="'+id+'"'+op+' style="margin-top:6px"><summary class="sub" style="cursor:pointer">🛡 মডারেটরের ক্ষমতা বাছুন</summary><div style="padding:4px 0"><label style="display:block;font-weight:700"><input type="checkbox" style="width:auto" data-g="permall" data-id="'+id+'"'+(pl.length===PERMS.length?' checked':'')+'> সব ক্ষমতা</label>'
       +PERMS.map(x=>'<label class="sub" style="display:block"><input type="checkbox" style="width:auto" data-g="perm" data-k="'+x[0]+'" data-id="'+id+'"'+(pl.includes(x[0])?' checked':'')+'> '+x[1]+'</label>').join('')+'</div></details>';
     let r='';
-    if(m.banned)r=bt('unban',id,'✅ ব্যান তুলুন','pri');
+    if(m.banned)r=bt('unban',id,'✅ নিষেধাজ্ঞা তুলুন','pri');
     else{
       r=(m.approved?bt('rev',id,'বাতিল'):bt('ok',id,'✔ অনুমোদন','pri').replace('<button','<button'+(m.email?'':' disabled')))
-       +bt('pw',id,'🔑 পাসওয়ার্ড রিসেট')+bt('ban',id,'⛔ ব্যান');
+       +bt('pw',id,'🔑 পাসওয়ার্ড রিসেট')+bt('ban',id,'⛔ নিষিদ্ধ করুন');
       if(k===2)r+=bt('addm',id,'➕ আমার সদস্য তালিকায় নিন')+bt('addl',id,'🏖 ছুটির তালিকায় নিন');
       if(k===1)r+=bt('extout',id,'↩ বাইরে ফেরত পাঠান')+bt('lvtog',id,p.nl?'🏖 ছুটির তালিকায় নিন':'ছুটির তালিকা থেকে সরান');
       r+=bt('del',id,'মুছুন');
