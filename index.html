@@ -430,7 +430,7 @@ function settingsHtml(){
    +'<div class="row"><button class="pri" data-a="save">সেভ করো</button></div></div>'}
 
 function adminBar(){
-  let h='<div class="row" style="justify-content:center;margin:22px 0 4px">'+(!db?'<span class="sub">Firebase কনফিগ বসানো হয়নি (শুধু দেখার মোড)</span>':editor?'<span class="sub">'+(isAdm?'অ্যাডমিন: '+esc(adminEmail):'মডারেটর: '+esc(memLabel()))+'</span><button data-a="logout">লগআউট</button>'+(isAdm?'<button data-a="memadm">👥 সদস্য লগইন (<b id="mcnt">'+pendCnt()+'</b>)</button>':''):'<span class="sub">লগইন: '+esc(memLabel())+'</span><button data-a="logout">লগআউট</button>')+'</div>';
+  let h='<div class="row" style="justify-content:center;margin:22px 0 4px">'+(!db?'<span class="sub">Firebase কনফিগ বসানো হয়নি (শুধু দেখার মোড)</span>':editor?'<span class="sub" style="display:inline-flex;align-items:center;gap:6px">'+(isAdm?'':meAv())+(isAdm?'অ্যাডমিন: '+esc(adminEmail):'মডারেটর: '+esc(memLabel()))+'</span><button data-a="logout">লগআউট</button>'+(isAdm?'<button data-a="memadm">👥 সদস্য লগইন (<b id="mcnt">'+pendCnt()+'</b>)</button>':''):'<span class="sub" style="display:inline-flex;align-items:center;gap:6px">'+meAv()+'লগইন: '+esc(memLabel())+'</span><button data-a="logout">লগআউট</button>')+'</div>';
   return h+(('wakeLock' in navigator)?'<div class="row" style="justify-content:center;margin:4px 0"><label class="sub"><input type="checkbox" id="wlt"'+(wlWant()?' checked':'')+' style="width:auto"> ☀ স্ক্রিন চালু রাখুন (বন্ধ হবে না)</label></div>':'')+'<div class="ft">০৬/১১/২০২৬ খ্রীঃ থেকে কার্যকর<br>© সর্বস্বত্ব সংরক্ষিত — aruhul257@gmail.com</div>'}
 function dlgHtml(){
   const g=ui.dlg;if(!g)return '';let b='';
@@ -744,6 +744,7 @@ const plOf=m=>m?(m.pv===2?(m.perms||[]):expP(m.perms)):[];
 const hasPerm=k=>isAdm||!!(memOK()&&M.role==='mod'&&plOf(M).includes(k));
 const bpn=s=>String(s||'').replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/\D/g,'');
 const pOfM=m=>{const k=bpn(m.bp);return S.people.find(x=>!x.gone&&x.bp&&(x.bp===m.bp||(k&&bpn(x.bp)===k)))};
+const meAv=()=>{const p=U&&bpOf(U)?pOfM({bp:bpOf(U)}):null;return p?avt(p.id,28):''};
 const saveR=()=>db.doc('roster/main').set({json:JSON.stringify(S),t:Date.now()});
 const actOK=a=>{for(const k in ACT)if(ACT[k].split(' ').includes(a))return hasPerm(k);return true};
 const canSet=()=>hasPerm('cfg');
