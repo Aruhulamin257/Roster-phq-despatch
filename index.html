@@ -651,7 +651,7 @@ function buildSheets(){
   const R=exRange(),from=R.from,to=R.to,ph=editor,sub='সময়কাল: '+fd(from)+' থেকে '+fd(to)+'  |  প্রতিবেদনের তারিখ ও সময়: '+stamp;
   const head=t=>[{h:30,c:[{v:t,s:1}]},{c:[{v:'কেন্দ্রীয় ডেসপাচ শাখা, পুলিশ হেডকোয়ার্টার্স',s:6}]},{c:[{v:sub,s:6}]},{c:[]}];
   const hr=a=>({h:32,c:a.map(v=>({v:v,s:2}))}),mg=n=>['A1:'+colL(n-1)+'1','A2:'+colL(n-1)+'2','A3:'+colL(n-1)+'3'],pid=id=>P(id)?id:null,sheets=[];
-  const emv=id=>{try{const m=(typeof MEMS!=='undefined'?MEMS:[]).find(x=>x.email&&pOfM(x)===P(id));return m?m.email:''}catch(e){return ''}},bpv=id=>(P(id)||{}).bp||'',phv=id=>(P(id)||{}).phone||'',nm=id=>id?fullnm(id):'—';
+  const emv=id=>{try{const pe=(P(id)||{}).email;if(pe)return pe;const m=(typeof MEMS!=='undefined'?MEMS:[]).find(x=>x.email&&pOfM(x)===P(id));return m?m.email:''}catch(e){return ''}},bpv=id=>(P(id)||{}).bp||'',phv=id=>(P(id)||{}).phone||'',nm=id=>id?fullnm(id):'—';
   {const cols=['ক্রম','শুক্রবার','শনিবার','ছবি','ডিউটিকারী (নির্ধারিত)','বিপি নম্বর'].concat(ph?['মোবাইল']:[],['নিয়োজিত দায়িত্ব','শুক্রবার — কে করেছেন','শুক্র উপস্থিতি','শনিবার — কে করেছেন','শনি উপস্থিতি','অবস্থা','কারণ / মন্তব্য','মেসেজ','পরের রোস্টার']);
    const rows=head('রোস্টার ডিউটি — স্টেটমেন্ট'),imgs=[];rows.push(hr(cols));let n=0,dn=0;
    out.filter(w=>w.date>=from&&w.date<=to).forEach(w=>{n++;const sat=addD(w.date,1),done=doneW(w,cur);if(done)dn++;const nt=[];
@@ -792,15 +792,32 @@ function gateInit(){
   if(!window.firebase){authReady=true;return}
   firebase.initializeApp(FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();
   try{auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{})}catch(e){}
+  try{if(sessionStorage.getItem('gredir')==='1')ui.forcePw=true}catch(e){}
+  auth.getRedirectResult().then(r=>{
+    let f=false;try{f=sessionStorage.getItem('gredir')==='1';sessionStorage.removeItem('gredir')}catch(e){}
+    if(r&&r.user)return gChk(r.user);
+    if(f){ui.forcePw=false;render()}
+  }).catch(e=>{ui.forcePw=false;try{sessionStorage.removeItem('gredir')}catch(x){}render();gmsg('Google লগইন হয়নি ('+((e&&e.code)||'unknown')+')')});
   auth.onAuthStateChanged(u=>{
     U=u;M=null;isAdm=!!u&&u.uid===ADMIN_UID;editor=isAdm;adminEmail=u?u.email:'';authReady=true;
     [unM,unMs].forEach(f=>f&&f());unM=unMs=null;
-    if(isAdm){unMs=db.collection('members').onSnapshot(s=>{MEMS=s.docs.map(d=>Object.assign({id:d.id},d.data()));const c=$('mcnt');if(c)c.textContent=pendCnt();if($('gx'))drawMem()},()=>{})}
+    if(isAdm){unMs=db.collection('members').onSnapshot(s=>{MEMS=s.docs.map(d=>Object.assign({id:d.id},d.data()));syncEmails();const c=$('mcnt');if(c)c.textContent=pendCnt();if($('gx'))drawMem()},()=>{})}
     else if(u&&bpOf(u)){unM=db.doc('members/'+u.uid).onSnapshot(d=>{
       if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:!!ui.regPw,created:Date.now()}).catch(()=>{});return}
       M=d.data();if(hasG()&&!M.email)saveGmail();render()},()=>{})}
     render();
   });
+}
+let _emSync=false;
+async function syncEmails(){
+  try{
+    if(!isAdm||_emSync||!rReady||!db||!S||!S.people||!S.people.length||!MEMS.length)return;
+    if(ui.showSet||ui.dlg||ui.npend||ui.nedit||ui.tkset)return;
+    let ch=false;
+    MEMS.forEach(m=>{if(!m.email)return;const p=pOfM(m);if(p&&p.email!==m.email){p.email=m.email;ch=true}});
+    if(!ch)return;
+    _emSync=true;await save();
+  }catch(e){}finally{_emSync=false}
 }
 function startData(){
   unR&&unR();unP&&unP();unR=unP=null;
@@ -812,6 +829,7 @@ function startData(){
     }
     rReady=true;render();
     if(editor&&!pubDone){pubDone=true;pubWeek()}
+    syncEmails();
   },()=>{rReady=true;render()})}
   else if(dm==='p'){unP=db.doc('public/week').onSnapshot(d=>{PUB=d.exists?d.data():null;render()},()=>{})}
 }
@@ -879,14 +897,25 @@ async function doReg(){
   try{await auth.createUserWithEmailAndPassword('bp'+bp+'@phq-roster.app',pw)}
   catch(e){ui.regPw=false;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "পাসওয়ার্ড ভুলে গেছেন?" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
 }
+async function gChk(u){
+  if(u.uid!==ADMIN_UID&&!/^bp\d+@phq-roster\.app$/.test(u.email||'')){
+    ui.forcePw=false;await u.delete().catch(()=>{});await auth.signOut();render();gmsg('এই Gmail কোনো সদস্যের সাথে যুক্ত নেই');return}
+  if(u.uid===ADMIN_UID){ui.forcePw=false;render()}
+}
 async function googleIn(){
   gmsg('');ui.forcePw=true;
   try{
     const u=(await auth.signInWithPopup(gp())).user;
-    if(u.uid!==ADMIN_UID&&!/^bp\d+@phq-roster\.app$/.test(u.email||'')){
-      ui.forcePw=false;await u.delete().catch(()=>{});await auth.signOut();render();gmsg('এই Gmail কোনো সদস্যের সাথে যুক্ত নেই');return}
-    if(u.uid===ADMIN_UID){ui.forcePw=false;render()}
-  }catch(e){ui.forcePw=false;render();gmsg('Google লগইন হয়নি')}
+    await gChk(u);
+  }catch(e){
+    const c=(e&&e.code)||'';
+    if(c==='auth/popup-blocked'||c==='auth/operation-not-supported-in-this-environment'||c==='auth/web-storage-unsupported'){
+      try{sessionStorage.setItem('gredir','1')}catch(x){}
+      try{await auth.signInWithRedirect(gp());return}catch(x){}
+    }
+    ui.forcePw=false;render();
+    gmsg(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Google লগইন বাতিল হয়েছে':c==='auth/unauthorized-domain'?'এই ডোমেইন Firebase-এ অনুমোদিত নয় (Authorized domains-এ যোগ করুন)':c==='auth/operation-not-allowed'?'Firebase-এ Google সাইন-ইন চালু নেই':'Google লগইন হয়নি ('+(c||'unknown')+')');
+  }
 }
 async function linkG(){
   try{await U.linkWithPopup(gp());await saveGmail();render()}
@@ -904,11 +933,7 @@ async function setPw(){
   try{await U.updatePassword(a);await db.doc('members/'+U.uid).update({pwSet:true,needPw:false});ui.forcePw=false;render()}
   catch(e){gmsg(e.code==='auth/requires-recent-login'?'নিরাপত্তার জন্য লগআউট করে আবার ঢুকুন':'পাসওয়ার্ড বদলায়নি')}
 }
-function forgotPw(){
-  const id=($('lid').value||'').trim();
-  if(!id.includes('@')){googleIn();return}
-  auth.sendPasswordResetEmail(id).then(()=>gmsg('রিসেট লিংক ইমেইলে পাঠানো হয়েছে',1)).catch(()=>gmsg('পাঠানো যায়নি'));
-}
+function forgotPw(){googleIn()}
 function doLogout(){ui.forcePw=false;ui.reg=false;ui.regPw=false;auth.signOut()}
 
 /* ---- অ্যাডমিন: সদস্য অনুমোদন ---- */
