@@ -262,10 +262,10 @@ function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=upSt
   return (editor?'<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button data-a="bc">✉ জরুরি মেসেজ পাঠান</button></div>':'')+'<h2>কী দেখতে চান?</h2><div class="opts">'+opt('r','📋','রোস্টার ডিউটির তালিকা',nw?'পরবর্তী: '+esc(fullnm(nw.duty)):'')+opt('s','⭐','বিশেষ ডিউটির তালিকা',ns?esc(fullnm(ns.duty))+' — '+fd(ns.date):'কোনো বিশেষ ডিউটি নেই')+'</div><div class="opts opts3">'+opt('c','📅','ক্যালেন্ডার','')+opt('l','🏖','ছুটির হিসাব','')+opt('m','👥','সদস্য','')+'</div>'}
 function tabsHtml(){return '<div class="tabs">'+[['h','🏠','হোম'],['r','📋','রোস্টার'],['s','⭐','বিশেষ'],['c','📅','ক্যালেন্ডার'],['l','🏖','ছুটি'],['m','👥','সদস্য']].map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(ui.tab===t[0]?'on':'')+'"><span>'+t[1]+'</span>'+t[2]+'</button>').join('')+'</div>'}
 const TKC=['#1e3a8a','#0f766e','#b45309','#9f1239','#4c1d95','#166534','#111827'];
-function tkSet(){const tk=S.tk||{};return '<div class="card"><label><input type="checkbox" id="tkon"'+(tk.on!==false?' checked':'')+' style="width:auto"> বিজ্ঞপ্তি-পট্টি চালু</label><input id="tktx" class="fw" value="'+esc(tk.text||'')+'" placeholder="বিজ্ঞপ্তির লেখা (ফাঁকা রাখলে নোটিশগুলো চলবে)"><div class="sub">রং বাছুন:</div><div class="row">'+TKC.map(c=>'<button data-a="tkc" data-c="'+c+'" style="background:'+c+';width:30px;height:30px;padding:0;border:'+(tk.color===c?'3px solid var(--gd)':'1px solid var(--bd)')+'"></button>').join('')+'<input type="color" id="tkcol" value="'+esc(tk.color||'#1e3a8a')+'" style="width:44px;padding:0;height:32px"></div><div class="row"><button class="pri" data-a="tksv">সংরক্ষণ করুন</button></div></div>'}
-function tickerHtml(){const tk=S.tk||{},tx=(tk.text||'').trim()||(S.notices||[]).map(n=>n.t.replace(/\s+/g,' ')).join('   •   ');const D=Math.max(14,Math.round(tx.length*.3));let h='';
+function tkSet(){const tk=S.tk||{};return '<div class="card"><label><input type="checkbox" id="tkon"'+(tk.on!==false?' checked':'')+' style="width:auto"> বিজ্ঞপ্তি-পট্টি চালু</label><input id="tktx" class="fw" value="'+esc(tk.text||'')+'" placeholder="বিজ্ঞপ্তির লেখা (ফাঁকা রাখলে নোটিশগুলো চলবে)"><div class="sub">চলার গতি:</div><select id="tksp">'+[['0.5','খুব ধীর'],['0.75','ধীর'],['1','স্বাভাবিক'],['1.5','দ্রুত'],['2','খুব দ্রুত']].map(o=>'<option value="'+o[0]+'"'+(String(tk.sp||1)===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select><div class="sub">রং বাছুন:</div><div class="row">'+TKC.map(c=>'<button data-a="tkc" data-c="'+c+'" style="background:'+c+';width:30px;height:30px;padding:0;border:'+(tk.color===c?'3px solid var(--gd)':'1px solid var(--bd)')+'"></button>').join('')+'<input type="color" id="tkcol" value="'+esc(tk.color||'#1e3a8a')+'" style="width:44px;padding:0;height:32px"></div><div class="row"><button class="pri" data-a="tksv">সংরক্ষণ করুন</button></div></div>'}
+function tickerHtml(){const tk=S.tk||{},tx=(tk.text||'').trim()||(S.notices||[]).map(n=>n.t.replace(/\s+/g,' ')).join('   •   ');const D=Math.max(6,Math.round(Math.max(14,Math.round(tx.length*.3))/(parseFloat(tk.sp)||1)));let h='';
   if(tk.on!==false&&tx)h='<div class="tkr" style="background:'+esc(tk.color||'#1e3a8a')+'"><span class="tkl">📢 বিজ্ঞপ্তি</span><div class="tkw"><div class="tkt" style="animation-duration:'+D+'s;animation-delay:-'+((performance.now()/1000)%D).toFixed(2)+'s">'+esc(tx)+'</div></div></div>';
-  if(editor)h+='<div class="row" style="margin:6px 0"><button data-a="tkt" class="mini">⚙ বিজ্ঞপ্তি-পট্টি সেটিং (চালু/বন্ধ, রং)</button></div>'+(ui.tkset?tkSet():'');
+  if(editor)h+='<div class="row" style="margin:6px 0"><button data-a="tkt" class="mini">⚙ বিজ্ঞপ্তি-পট্টি সেটিং (চালু/বন্ধ, গতি, রং)</button></div>'+(ui.tkset?tkSet():'');
   return h}
 function noticeHtml(){const n=S.notices||[];if(!n.length&&!editor)return '';
   return '<div class="card nt"><div class="ct">📢 নোটিশ বোর্ড</div>'+(n.length?n.map(x=>'<div class="ni">'+(editor&&ui.nedit===x.id?'<textarea id="nedtx" rows="3" class="ta">'+esc(ui.nedv!=null?ui.nedv:x.t)+'</textarea><div class="row"><button class="pri" data-a="nupd" data-i="'+x.id+'">সংরক্ষণ</button><button data-a="nec">বাতিল</button></div>':'<div style="white-space:pre-wrap">'+esc(x.t)+'</div>')+'<div class="sub">'+esc(x.d)+(x.e?' (সম্পাদিত: '+esc(x.e)+')':'')+(editor&&ui.nedit!==x.id?' <b data-a="ned" data-i="'+x.id+'" class="lk">✎ সম্পাদনা</b> <b data-a="nrm" data-i="'+x.id+'" class="lk">✕ মুছুন</b>':'')+'</div></div>').join(''):'<div class="sub">কোনো নোটিশ নেই</div>')
@@ -476,7 +476,7 @@ function dlgHtml(){
     const stt=lvStat(g.id,y),lv=stt.c,lvt=stt.tot;
     const nr=out.filter(w=>w.date>=upStart()&&w.duty===g.id).slice(0,1).map(w=>fd(w.date)).join(', '),lr=out.slice().reverse().find(w=>w.date<cur&&w.duty===g.id),ns=sp.filter(x=>x.date>=td&&x.duty===g.id).slice(0,1).map(x=>fd(x.date)+' ('+x.name+')').join(', ');
     b=(p.photo?'<img src="'+p.photo+'" class="pp">':'<div class="pp" style="display:flex;align-items:center;justify-content:center;background:var(--acbg);font-size:52px">'+ico(p)+'</div>')+'<div class="dt" style="margin:8px 0">'+esc(p.name||'')+tg(g.id)+'</div>'
-     +ln('পদবী',rk(g.id))+ln('নিয়োজিত দায়িত্ব',p.role)+ln('বিপি নম্বর',p.bp)+ln('লিঙ্গ',p.g==='m'?'👨 পুরুষ':p.g==='f'?'👩 মহিলা':'নির্ধারিত নয়')+ln('শাখায় যোগদান',p.join?fd(p.join):'')+ln('শাখায় সময়',sv)+ln('তদারকি অফিসার',p.sup)+(vcall()?ln('মোবাইল',p.phone):'')
+     +ln('পদবী',rk(g.id))+ln('নিয়োজিত দায়িত্ব',p.role)+ln('বিপি নম্বর',p.bp)+ln('লিঙ্গ',p.g==='m'?'👨 পুরুষ':p.g==='f'?'👩 মহিলা':'নির্ধারিত নয়')+ln('শাখায় যোগদান',p.join?fd(p.join):'')+ln('শাখায় সময়',sv)+ln('তদারকি অফিসার',p.sup)+(vcall()?ln('মোবাইল',p.phone):'')+(editor?ln('ইমেইল',emv(g.id)):'')
      +ln('রোস্টারে আছেন',elig(p,cur)||elig(p,nextF())?'হ্যাঁ':'না')+ln('বিশেষ ডিউটি তালিকায়',p.sp?'হ্যাঁ':'না')
      +ln('রোস্টার ডিউটি সম্পন্ন',bn(c.r)+' সপ্তাহ')+ln('দিন বেশি/কম',exTxt(c))+ln('শেষ রোস্টার ডিউটি',lr?fd(lr.date):'')+ln('পরবর্তী রোস্টার',nr)+ln('বিশেষ ডিউটি সম্পন্ন',bn(c.s)+' বার')+ln('পরবর্তী বিশেষ ডিউটি',ns)
      +ln('CL (বার্ষিক পাওনা '+bn(CLQ())+' দিন)','ভোগ '+bn(stt.clU)+' · বাকি '+(stt.clRem<0?'−'+bn(-stt.clRem)+' (বেশি)':bn(stt.clRem)))+ln(bn(y)+' সালে ছুটি','মোট '+bn(lvt)+' দিন'+(lvt?' ('+LT.filter(t=>lv[t]).map(t=>t+' '+bn(lv[t])).join(', ')+')':''))+(function(){const st=leaveStats().find(x=>x.id===g.id);return st?ln('শেষ ছুটি',stTxt(st))+ln('ছুটিতে অগ্রাধিকার',prInfo(g.id)):''})()
@@ -578,8 +578,8 @@ document.addEventListener('click',e=>{
     ned(){ui.nedit=b.dataset.i;ui.nedv=null;render()},nec(){ui.nedit=null;ui.nedv=null;render()},
     nupd(){const x=S.notices.find(n=>n.id===b.dataset.i),v=$('nedtx').value.trim();if(x&&v){x.t=v;x.e=fd(iso(new Date()))}ui.nedit=null;ui.nedv=null;save()},
     tkt(){ui.tkset=!ui.tkset;render()},
-    tkc(){S.tk=S.tk||{};if($('tkon')){S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim()}S.tk.color=b.dataset.c;save()},
-    tksv(){S.tk=S.tk||{};S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim();S.tk.color=$('tkcol').value;ui.tkset=false;save()},
+    tkc(){S.tk=S.tk||{};if($('tkon')){S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim();if($('tksp'))S.tk.sp=parseFloat($('tksp').value)||1}S.tk.color=b.dataset.c;save()},
+    tksv(){S.tk=S.tk||{};S.tk.on=$('tkon').checked;S.tk.text=$('tktx').value.trim();S.tk.color=$('tkcol').value;if($('tksp'))S.tk.sp=parseFloat($('tksp').value)||1;ui.tkset=false;save()},
     rall(){ui.rAll=true;ui.rN=53;render()},rshort(){ui.rAll=false;ui.rN=53;render()},sall(){ui.sAll=true;ui.sN=53;render()},sshort(){ui.sAll=false;ui.sN=53;render()},more(){const k=b.dataset.k;ui[MLP[k]]=lim(k)+Math.max(initN(k),6);render()},less(){ui[MLP[b.dataset.k]]=null;render()},
     bc(){ui.bc={step:1,sel:{},text:'',list:[],sent:{}};ui.dlg={k:'bc'};render()},
     bcsel(){ui.bc.sel[b.dataset.id]=b.checked},
@@ -651,7 +651,7 @@ function buildSheets(){
   const R=exRange(),from=R.from,to=R.to,ph=editor,sub='সময়কাল: '+fd(from)+' থেকে '+fd(to)+'  |  প্রতিবেদনের তারিখ ও সময়: '+stamp;
   const head=t=>[{h:30,c:[{v:t,s:1}]},{c:[{v:'কেন্দ্রীয় ডেসপাচ শাখা, পুলিশ হেডকোয়ার্টার্স',s:6}]},{c:[{v:sub,s:6}]},{c:[]}];
   const hr=a=>({h:32,c:a.map(v=>({v:v,s:2}))}),mg=n=>['A1:'+colL(n-1)+'1','A2:'+colL(n-1)+'2','A3:'+colL(n-1)+'3'],pid=id=>P(id)?id:null,sheets=[];
-  const emv=id=>{try{const pe=(P(id)||{}).email;if(pe)return pe;const m=(typeof MEMS!=='undefined'?MEMS:[]).find(x=>x.email&&pOfM(x)===P(id));return m?m.email:''}catch(e){return ''}},bpv=id=>(P(id)||{}).bp||'',phv=id=>(P(id)||{}).phone||'',nm=id=>id?fullnm(id):'—';
+  const bpv=id=>(P(id)||{}).bp||'',phv=id=>(P(id)||{}).phone||'',nm=id=>id?fullnm(id):'—';
   {const cols=['ক্রম','শুক্রবার','শনিবার','ছবি','ডিউটিকারী (নির্ধারিত)','বিপি নম্বর'].concat(ph?['মোবাইল']:[],['নিয়োজিত দায়িত্ব','শুক্রবার — কে করেছেন','শুক্র উপস্থিতি','শনিবার — কে করেছেন','শনি উপস্থিতি','অবস্থা','কারণ / মন্তব্য','মেসেজ','পরের রোস্টার']);
    const rows=head('রোস্টার ডিউটি — স্টেটমেন্ট'),imgs=[];rows.push(hr(cols));let n=0,dn=0;
    out.filter(w=>w.date>=from&&w.date<=to).forEach(w=>{n++;const sat=addD(w.date,1),done=doneW(w,cur);if(done)dn++;const nt=[];
@@ -783,11 +783,13 @@ function permCss(){
 }
 const pendCnt=()=>MEMS.filter(m=>!m.approved&&!m.banned).length;
 const memLabel=()=>bpOf(U)?'বিপি-'+bpOf(U):((U&&U.email)||'');
-const gp=()=>new firebase.auth.GoogleAuthProvider();
+const gp=()=>{const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p};
 const gmsg=(t,ok)=>{const e=$('gerr');if(e){e.textContent=t||'';e.style.color=ok?'#16a34a':'#b91c1c'}};
 const gbox=h=>'<div style="max-width:440px;margin:0 auto;padding:16px 8px">'+h+'</div>';
 const gload='<div class="card sub">লোড হচ্ছে…</div>';
 
+function eyeify(){document.querySelectorAll('input[type=password]:not([data-eye])').forEach(inp=>{inp.setAttribute('data-eye','1');const w=document.createElement('span');w.style.cssText='position:relative;display:block;width:100%';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);inp.style.paddingRight='46px';const b=document.createElement('button');b.type='button';b.textContent='👁';b.setAttribute('aria-label','পাসওয়ার্ড দেখুন');b.style.cssText='position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:none;box-shadow:none;margin:0;font-size:20px;padding:4px 8px;width:auto;min-height:0;cursor:pointer';b.onclick=()=>{const sh=inp.type==='password';inp.type=sh?'text':'password';b.textContent=sh?'🙈':'👁'};w.appendChild(b)})}
+try{new MutationObserver(eyeify).observe(document.body,{childList:true,subtree:true});eyeify()}catch(e){}
 function gateInit(){
   if(!window.firebase){authReady=true;return}
   firebase.initializeApp(FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();
@@ -819,6 +821,7 @@ async function syncEmails(){
     _emSync=true;await save();
   }catch(e){}finally{_emSync=false}
 }
+const emv=id=>{try{const pe=(P(id)||{}).email;if(pe)return pe;const m=(typeof MEMS!=='undefined'?MEMS:[]).find(x=>x.email&&pOfM(x)===P(id));return m?m.email:''}catch(e){return ''}};
 function startData(){
   unR&&unR();unP&&unP();unR=unP=null;
   if(dm==='r'){rReady=false;unR=db.doc('roster/main').onSnapshot(d=>{
