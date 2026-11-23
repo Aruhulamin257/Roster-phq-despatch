@@ -396,6 +396,7 @@ function calHtml(out,sp){
   return h}
 function leaveImpact(l,out,sp){return {wk:out.filter(w=>w.sk.includes(l.pid)&&lvOverlap(l,w.date,addD(w.date,1))),spd:sp.filter(x=>x.sk&&x.sk.includes(l.pid)&&lvOverlap(l,x.date,x.date))}}
 const lvText=l=>l.type==='CL+PL'&&l.cl&&l.pl?'CL: '+fd(l.cl[0])+' – '+fd(l.cl[1])+' ('+bn(days(l.cl[0],l.cl[1]))+' দিন) · PL: '+fd(l.pl[0])+' – '+fd(l.pl[1])+' ('+bn(days(l.pl[0],l.pl[1]))+' দিন)':fd(l.from)+' – '+fd(l.to)+' ('+bn(days(l.from,l.to))+' দিন)';
+const lvDet=l=>{const sp=lspans(l),f=sp.reduce((m,x)=>x[0]<m?x[0]:m,'9999-99-99'),t=sp.reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),r=retDate(l),n=sp.reduce((a,x)=>a+days(x[0],x[1]),0),two=l.type==='CL+PL'&&l.cl&&l.pl;return '<div class="sub" style="flex-basis:100%;line-height:1.7">শুরু: <b>'+fd(f)+' ('+wkdn(f)+')</b> · শেষ: <b>'+fd(t)+' ('+wkdn(t)+')</b><br>মোট: <b>'+bn(n)+' দিন</b>'+(two?' ('+lvText(l)+')':'')+'<br>কর্মস্থলে হাজির: <b>'+fd(r)+' ('+wkdn(r)+')</b></div>'};
 function memberOf(l){const p=P(l.pid)||{};return {inR:elig(p,l.from)||elig(p,l.to)||elig(p,nextF()),inS:!!p.sp}}
 function leaveNote(l,imp){
   const m=memberOf(l);
@@ -426,7 +427,7 @@ function leaveTab(out,sp){
   const endOf=l=>lspans(l).reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),act=ls.filter(l=>endOf(l)>=tn),ended=ls.filter(l=>endOf(l)<tn);
   h+=prioHtml()+'<div class="row"><button data-a="lvt"'+(ui.lvl?' class="pri"':'')+'>📋 ছুটির তালিকা '+(ui.lvl?'লুকান':'দেখুন')+' ('+bn(act.length)+')</button><button data-a="lvht">🕘 ছুটির ইতিহাস '+(ui.lvh?'লুকান':'দেখুন')+' ('+bn(ended.length)+')</button>'+(editor?'<button data-a="lmt">✍ ম্যানুয়াল এন্ট্রির তালিকা '+bn(y)+' '+(ui.lmShow?'লুকান':'দেখুন')+'</button>':'')+'</div>';
   if(ui.lvl)h+='<div class="wlist">'+(act.map(l=>leaveCard(l,out,sp)).join('')||'<div class="sub">চলমান বা আসন্ন কোনো ছুটি নেই</div>')+'</div>';
-  if(ui.lvh)h+='<div class="wlist">'+(ended.map(l=>'<div class="cr">'+avt(l.pid,26)+'<div class="cnm">'+esc(fullnm(l.pid))+'</div><span class="chip c3">'+esc(l.type)+'</span><span class="sub">'+fd(l.from)+' – '+fd(l.to)+'</span>'+(editor?'<button data-a="led" data-id="'+l.id+'" class="mini">✎</button><button data-a="lrm" data-id="'+l.id+'" class="mini">🗑</button>':'')+'</div>').join('')||'<div class="sub">কোনো ছুটির ইতিহাস নেই</div>')+'</div>';
+  if(ui.lvh)h+='<div class="wlist">'+(ended.map(l=>'<div class="cr" style="flex-wrap:wrap">'+avt(l.pid,26)+'<div class="cnm">'+esc(fullnm(l.pid))+'</div><span class="chip c3">'+esc(l.type)+'</span>'+(editor?'<button data-a="led" data-id="'+l.id+'" class="mini">✎</button><button data-a="lrm" data-id="'+l.id+'" class="mini">🗑</button>':'')+lvDet(l)+'</div>').join('')||'<div class="sub">কোনো ছুটির ইতিহাস নেই</div>')+'</div>';
   if(editor&&ui.lmShow){const lm=(S.lvm||[]).filter(m=>m.year===y);h+='<h2>ম্যানুয়াল এন্ট্রি ('+bn(y)+')</h2>'+(lm.length?lm.map(m=>'<div class="note n2c"><span class="ia">'+avt(m.pid,22)+'<b>'+esc(fullnm(m.pid))+'</b></span> — '+esc(m.type)+' · '+bn(m.days)+' দিন'+(m.note?' · '+esc(m.note):'')+' <b data-a="lmed" data-id="'+m.id+'" class="lk">✎ এডিট</b> <b data-a="lmrm" data-id="'+m.id+'" class="lk">✕ মুছুন</b></div>').join(''):'<div class="sub">কোনো ম্যানুয়াল এন্ট্রি নেই</div>')}
   return h}
 function memTab(out,sp,cur){
