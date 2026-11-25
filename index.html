@@ -139,7 +139,7 @@ const RS=['ছুটি','অসুস্থতা','প্রশিক্ষণ
 const DEFHOL={'2026-12-16':'বিজয় দিবস','2026-12-25':'বড়দিন','2027-02-21':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','2027-03-26':'স্বাধীনতা দিবস','2027-04-14':'পহেলা বৈশাখ','2027-05-01':'মে দিবস','2027-08-05':'গণঅভ্যুত্থান দিবস','2027-12-16':'বিজয় দিবস','2027-12-25':'বড়দিন'};
 let S=JSON.parse($('data').textContent);
 let editor=false,adminEmail='',db=null,auth=null;
-const ui={tab:'h',rN:null,sN:null,hN:null,shN:null,lvl:false,lvh:false,lmShow:false,tAll:false,bc:null,ld:null,lc:null,xw:{},xs:{},mord:false,open:null,showSet:false,setOpen:null,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
+const ui={tab:'h',rN:null,sN:null,hN:null,shN:null,lvl:false,lvh:false,lmShow:false,tAll:false,bc:null,ld:null,lc:null,xw:{},xs:{},mord:false,open:null,showSet:false,setOpen:null,optOpen:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
 function norm(){
   const d={status:{},sub:{},tpl:{},manual:{},absent:{},absr:{},att:{},sent:{},notices:[],leaves:[],spov:{},spsent:{},orders:[],sporder:[],morder:[],lvm:[],day:{},spfix:{},tk:{on:true,text:'',color:'#1e3a8a'},opts:{des:[],role:[]}};
   for(const k in d)if(!S[k])S[k]=d[k];
@@ -476,7 +476,7 @@ function settingsHtml(){
   seedOpts();
   const tp=(id,l,v,ph)=>'<div class="sub" style="margin:8px 0 3px">'+l+'</div><textarea id="'+id+'" rows="3" class="ta" placeholder="'+ph+'">'+esc(v||'')+'</textarea>';
   return '<div class="card set"><div class="ct">⚙ সদস্য ও সেটিংস</div>'+S.people.map((p,i)=>p.gone?'':personBox(p,i)).join('')+'<div class="row"><button data-a="addp">+ নতুন সদস্য</button></div>'
-   +'<div class="sub" style="margin-top:10px">সংরক্ষিত পদবীর তালিকা (প্রতি লাইনে একটি; সদস্যের ফর্ম থেকে নতুন লিখলে নিজে থেকেই যোগ হয়)</div><textarea id="optdes" rows="4" class="ta">'+esc(S.opts.des.join('\n'))+'</textarea><div class="sub" style="margin-top:8px">সংরক্ষিত দায়িত্বের তালিকা (প্রতি লাইনে একটি)</div><textarea id="optrole" rows="4" class="ta">'+esc(S.opts.role.join('\n'))+'</textarea>'
+   +'<details style="margin-top:10px"'+(ui.optOpen?' open':'')+' ontoggle="ui.optOpen=this.open"><summary class="sub" style="cursor:pointer;font-size:14px">📋 পদবী ও দায়িত্বের সংরক্ষিত তালিকা (চাপলে খুলবে)</summary><div class="sub" style="margin-top:6px">পদবীর তালিকা — প্রতি লাইনে একটি। সদস্যের ফর্মে নতুন লিখলে নিজে থেকেই যোগ হয়।</div><textarea id="optdes" rows="4" class="ta">'+esc(S.opts.des.join('\n'))+'</textarea><div class="sub" style="margin-top:8px">দায়িত্বের তালিকা — প্রতি লাইনে একটি</div><textarea id="optrole" rows="4" class="ta">'+esc(S.opts.role.join('\n'))+'</textarea></details>'
    +'<div class="sub" style="margin-top:10px">অফিসের সরকারি নম্বর</div><input id="off" value="'+esc(S.office||'')+'" placeholder="যেমন 02-1234567" inputmode="tel">'
    +'<div class="row"><label><input type="checkbox" id="vc"'+(S.vcall!==false?' checked':'')+' style="width:auto"> দর্শকদের জন্য ছোট কল বাটন চালু</label></div>'
    +'<div class="row"><label><input type="checkbox" id="pra"'+(S.prShow===true?' checked':'')+' style="width:auto"> অগ্রাধিকারের বাইরের সদস্যদের তালিকা সবাইকে দেখান</label></div><div class="sub">বন্ধ থাকলে শুধু অ্যাডমিন/এডিটররা এই তালিকা দেখবেন।</div>'
