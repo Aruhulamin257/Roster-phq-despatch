@@ -851,7 +851,7 @@ function gateInit(){
     [unM,unMs].forEach(f=>f&&f());unM=unMs=null;
     if(isAdm){unMs=db.collection('members').onSnapshot(s=>{MEMS=s.docs.map(d=>Object.assign({id:d.id},d.data()));syncEmails();pubEm();const c=$('mcnt');if(c)c.textContent=pendCnt();if($('gx'))drawMem()},()=>{})}
     else if(u&&bpOf(u)){unM=db.doc('members/'+u.uid).onSnapshot(d=>{
-      if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:!!ui.regPw,created:Date.now()}).catch(()=>{});return}
+      if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:!!ui.regPw,created:Date.now()}).then(()=>{const pf=ui.regProf;ui.regProf=null;ui.rf=null;if(pf)return db.doc('members/'+u.uid).update({prof:pf})}).catch(()=>{});return}
       M=d.data();if(hasG()&&!M.email)saveGmail();render()},()=>{})}
     render();
   });
@@ -902,8 +902,14 @@ function pubHtml(){
 }
 function loginHtml(){
   const er='<div id="gerr" class="sub" style="color:#b91c1c;min-height:18px"></div>';
+  const R=ui.rf=ui.rf||{},ds=(PUB&&PUB.des)||[],iv=(k,ph,x)=>'<input class="fw" id="r'+k+'" placeholder="'+ph+'" value="'+esc(R[k]||'')+'" oninput="ui.rf.'+k+'=this.value"'+(x||'')+'>';
   if(ui.reg)return '<div class="card"><div class="ct">📝 নতুন অ্যাকাউন্ট খুলুন</div>'
-  +'<input class="fw" id="lid" placeholder="আপনার বিপি নম্বর" inputmode="numeric" autocomplete="username">'
+  +iv('nm','আপনার নাম',' autocomplete="name"')
+  +iv('ph','মোবাইল নম্বর',' inputmode="tel" autocomplete="tel"')
+  +'<input class="fw" id="lid" placeholder="আপনার বিপি নম্বর" inputmode="numeric" autocomplete="username" value="'+esc(R.bp||'')+'" oninput="ui.rf.bp=this.value">'
+  +iv('ds','পদবী (লিখুন বা বাছুন)')
+  +(ds.length?'<select class="fw" onchange="if(this.value){var e=document.getElementById(\'rds\');e.value=this.value;ui.rf.ds=this.value}this.selectedIndex=0"><option value="">▼ পদবী তালিকা থেকে বাছুন</option>'+ds.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'</select>':'')
+  +iv('rn','পদবীর নম্বর',' inputmode="numeric"')
   +'<input class="fw" id="lpw" type="password" placeholder="নিজের পছন্দের পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)" autocomplete="new-password">'
   +'<input class="fw" id="lpw2" type="password" placeholder="পাসওয়ার্ড আবার লিখুন" autocomplete="new-password" onkeydown="if(event.keyCode===13)doReg()">'
   +er+'<div class="row"><button class="pri" onclick="doReg()">অ্যাকাউন্ট খুলুন</button><button onclick="setReg(false)">← লগইনে ফিরুন</button></div>'
@@ -947,11 +953,17 @@ async function doReg(){
   const id=$('lid').value.trim(),pw=$('lpw').value,p2=$('lpw2').value;gmsg('');
   const bp=id.includes('@')?'':normBp(id);
   if(!bp){gmsg('সঠিক বিপি নম্বর দিন (শুধু সংখ্যা)');return}
+  const pf={name:($('rnm')||{}).value||'',phone:(($('rph')||{}).value||'').replace(/[\s-]/g,''),des:($('rds')||{}).value||'',rn:bpn(($('rrn')||{}).value||'')};
+  pf.name=pf.name.trim();pf.des=pf.des.trim();
+  if(!pf.name){gmsg('আপনার নাম লিখুন');return}
+  if(bpn(pf.phone).length<10){gmsg('সঠিক মোবাইল নম্বর দিন');return}
+  if(!pf.des){gmsg('পদবী লিখুন বা তালিকা থেকে বাছুন');return}
+  if(!pf.rn){gmsg('পদবীর নম্বর দিন');return}
   if(pw.length<6){gmsg('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের দিন');return}
   if(pw!==p2){gmsg('দুটো পাসওয়ার্ড মেলেনি');return}
-  ui.regPw=true;
+  ui.regPw=true;ui.regProf=pf;
   try{await auth.createUserWithEmailAndPassword('bp'+bp+'@phq-roster.app',pw)}
-  catch(e){ui.regPw=false;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "পাসওয়ার্ড ভুলে গেছেন?" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
+  catch(e){ui.regPw=false;ui.regProf=null;gmsg(e.code==='auth/email-already-in-use'?'এই বিপি দিয়ে আগেই অ্যাকাউন্ট খোলা হয়েছে। লগইন করুন, পাসওয়ার্ড ভুলে গেলে "পাসওয়ার্ড ভুলে গেছেন?" চাপুন':e.code==='auth/weak-password'?'আরও শক্ত পাসওয়ার্ড দিন':'অ্যাকাউন্ট খোলা যায়নি, আবার চেষ্টা করুন')}
 }
 async function gChk(u){
   if(u.uid!==ADMIN_UID&&!/^bp\d+@phq-roster\.app$/.test(u.email||'')){
@@ -990,7 +1002,7 @@ async function setPw(){
   catch(e){gmsg(e.code==='auth/requires-recent-login'?'নিরাপত্তার জন্য লগআউট করে আবার ঢুকুন':'পাসওয়ার্ড বদলায়নি')}
 }
 function forgotPw(){googleIn()}
-function doLogout(){ui.forcePw=false;ui.reg=false;ui.regPw=false;auth.signOut()}
+function doLogout(){ui.forcePw=false;ui.reg=false;ui.regPw=false;ui.rf=null;auth.signOut()}
 
 /* ---- অ্যাডমিন: সদস্য অনুমোদন ---- */
 function openMemAdm(){
@@ -1013,7 +1025,8 @@ function drawMem(){
   L.sort((a,b)=>(isP(b)?1:0)-(isP(a)?1:0)||(b.created||0)-(a.created||0));
   const bt=(a,id,t,c)=>'<button'+(c?' class="'+c+'"':'')+' data-g="'+a+'" data-id="'+id+'">'+t+'</button>';
   const list=L.length?L.map(m=>{
-    const p=pOfM(m),id=m.id,k=grp(m);
+    const p=pOfM(m),id=m.id,k=grp(m),pf=m.prof||{};
+    const ttl=p?fullnm(p.id):(pf.name?((pf.des||'')+(pf.rn?'/'+bn(pf.rn):'')+' '+pf.name).trim():'বিপি-'+m.bp);
     const st=m.banned?'<span class="chip c3">⛔ নিষিদ্ধ</span>':m.approved?'<span class="chip c2">অনুমোদিত</span>':'<span class="chip c3">অপেক্ষায়</span>';
     const pl=plOf(m),md=m.role==='mod'?' <span class="chip c1">🛡 মডারেটর ('+bn(pl.length)+' ক্ষমতা)</span>':'';
     const op=window._mo&&window._mo[id]?' open':'';
@@ -1029,8 +1042,8 @@ function drawMem(){
       r+=bt('del',id,'মুছুন');
     }
     const tg=k===0?'<span class="chip c2">আমার এন্ট্রি</span>':k===1?'<span class="chip c4">আমার তালিকায়</span>'+(p.nl?'':'<span class="chip c2">🏖 ছুটির তালিকায়</span>'):'<span class="chip c1">বাইরের</span>';
-    return '<div class="card" style="margin-bottom:8px"><div style="display:flex;gap:10px;align-items:center">'+(p?avt(p.id,44):'')+'<div><b>'+(p?esc(fullnm(p.id)):'বিপি-'+esc(m.bp))+'</b><div>'+st+tg+md+'</div></div></div>'
-    +'<div class="sub" style="margin-top:4px">বিপি-'+esc(m.bp)+' · Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div>'
+    return '<div class="card" style="margin-bottom:8px"><div style="display:flex;gap:10px;align-items:center">'+(p?avt(p.id,44):'')+'<div><b>'+esc(ttl)+'</b><div>'+st+tg+md+'</div></div></div>'
+    +'<div class="sub" style="margin-top:4px">বিপি-'+esc(m.bp)+(pf.phone?' · 📞 '+esc(pf.phone):'')+' · Gmail: '+esc(m.email||'এখনো দেননি')+(m.pwSet?'':' · পাসওয়ার্ড বদলায়নি')+'</div>'
     +(!m.approved&&!m.banned&&!m.email?'<div class="sub">Gmail না দেওয়া পর্যন্ত অনুমোদন দেওয়া যাবে না</div>':'')
     +'<div class="row" style="margin-top:8px">'+r+'</div>'+(m.approved&&!m.banned?pn:'')+'</div>';
   }).join(''):'<div class="card sub">'+(q?'কিছু পাওয়া যায়নি':tab==='pend'?'কোনো আবেদন অপেক্ষায় নেই ✅':'কেউ নেই')+'</div>';
@@ -1059,10 +1072,10 @@ function memClick(e){
     if(!m||pOfM(m))return;
     if(!db||!editor){mtoast('সদস্য তালিকায় যোগ করার অনুমতি নেই');return}
     const k=bpn(m.bp),old=S.people.find(x=>x.gone&&x.ext&&x.bp&&(x.bp===m.bp||(k&&bpn(x.bp)===k)));
-    const nl=(a==='addm');let np=old,undo;
+    const nl=(a==='addm'),pf=m.prof||{};let np=old,undo;
     if(old){const pg=old.gone,pn=old.nl;old.gone=false;old.nl=nl;undo=()=>{old.gone=pg;old.nl=pn}}
-    else{np={id:'p'+Date.now().toString(36),name:'নতুন সদস্য',phone:'',bp:m.bp,j:nextF(),hist:[{d:nextF(),on:false}],sp:false,ext:true,nl:nl};S.people.push(np);undo=()=>{S.people=S.people.filter(x=>x!==np)}}
-    saveR().then(()=>{pubWeek();render();drawMem();mtoast('✅ আমার সদস্য তালিকায় যোগ হয়েছে'+(nl?'':' (ছুটির তালিকায়ও আছে)')+'। সেটিংসে গিয়ে নাম-পদবী দিন (রোস্টার/বিশেষ ডিউটি বন্ধ আছে)')}).catch(e=>{undo();mtoast('যোগ হয়নি: '+(e.code||''))});
+    else{np={id:'p'+Date.now().toString(36),name:pf.name||'নতুন সদস্য',phone:pf.phone||'',des:pf.des||'',rn:pf.rn||'',bp:m.bp,j:nextF(),hist:[{d:nextF(),on:false}],sp:false,ext:true,nl:nl};S.people.push(np);undo=()=>{S.people=S.people.filter(x=>x!==np)}}
+    saveR().then(()=>{pubWeek();render();drawMem();mtoast('✅ আমার সদস্য তালিকায় যোগ হয়েছে'+(nl?'':' (ছুটির তালিকায়ও আছে)')+'। সেটিংসে গিয়ে তথ্য মিলিয়ে নিন (রোস্টার/বিশেষ ডিউটি বন্ধ আছে)')}).catch(e=>{undo();mtoast('যোগ হয়নি: '+(e.code||''))});
     return;
   }
   if(a==='lvtog'){
@@ -1085,10 +1098,19 @@ function memClick(e){
 
 /* ---- পাবলিক ডকুমেন্ট তৈরি (শুধু নাম, পদবী, ছোট ছবি) ---- */
 function thumb(src){return new Promise(r=>{if(!src)return r('');const im=new Image();im.onload=()=>{const k=Math.min(1,100/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.6))};im.onerror=()=>r('');im.src=src})}
+async function emMap(){
+  const cnt={},em={};
+  MEMS.forEach(m=>{if(m.email)cnt[String(m.email).trim().toLowerCase()]=(cnt[String(m.email).trim().toLowerCase()]||0)+1});
+  for(const m of MEMS){
+    const e=m.email?String(m.email).trim().toLowerCase():'';
+    if(!e||!m.bp||m.banned||m.approved!==true||cnt[e]>1)continue;
+    const h=await emH(e);if(h)em[h]=bpn(m.bp)}
+  return em;
+}
 async function pubEm(){
   if(!isAdm||!rReady||!db||window._emBusy)return;
   window._emBusy=true;
-  try{const em={};for(const m of MEMS){if(m.email&&m.bp&&!m.banned){const h=await emH(m.email);if(h)em[h]=bpn(m.bp)}}
+  try{const em=await emMap();
     if(JSON.stringify(em)!==window._emSig)await pubWeek()}catch(e){}finally{window._emBusy=false}
 }
 async function pubWeek(){
@@ -1096,8 +1118,8 @@ async function pubWeek(){
   try{
     const cur=curFri(),out=sim().filter(w=>w.date>=cur).slice(0,6),ws=[];
     for(const w of out){const p=w.duty&&P(w.duty);ws.push({date:w.date,n:p?(p.name||''):'',r:p?(p.des||''):'',ph:p?await thumb(p.photo):''})}
-    const d={weeks:ws,t:Date.now()};
-    if(isAdm){const em={};for(const m of MEMS){if(m.email&&m.bp&&!m.banned){const h=await emH(m.email);if(h)em[h]=bpn(m.bp)}}d.em=em;window._emSig=JSON.stringify(em);await db.doc('public/week').set(d)}
+    const d={weeks:ws,t:Date.now(),des:optList('des')};
+    if(isAdm){const em=await emMap();d.em=em;window._emSig=JSON.stringify(em);await db.doc('public/week').set(d)}
     else await db.doc('public/week').set(d,{merge:true});
   }catch(e){console.error(e)}
 }
