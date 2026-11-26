@@ -145,7 +145,7 @@ let S=JSON.parse($('data').textContent);
 let editor=false,adminEmail='',db=null,auth=null;
 const ui={tab:'h',rN:null,sN:null,hN:null,shN:null,lvl:false,lvh:false,lmShow:false,tAll:false,bc:null,ld:null,lc:null,xw:{},xs:{},mord:false,open:null,showSet:false,setOpen:null,optOpen:false,ord:false,dlg:null,lerr:'',lyear:new Date().getFullYear(),exf:'',ext:'',cm:(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),npend:false};
 function norm(){
-  const d={status:{},sub:{},tpl:{},manual:{},absent:{},absr:{},att:{},sent:{},notices:[],leaves:[],spov:{},spsent:{},onsent:{},auto:{on:false,thu:true,fs:true,tt:'16:00',tf:'09:00',ts:'09:00'},orders:[],sporder:[],morder:[],lvm:[],day:{},spfix:{},tk:{on:true,text:'',color:'#1e3a8a'},opts:{des:[],role:[]}};
+  const d={status:{},sub:{},tpl:{},manual:{},absent:{},absr:{},att:{},sent:{},notices:[],leaves:[],spov:{},spsent:{},onsent:{},auto:{on:false,thu:true,fs:true,tt:'16:00',tf:'09:00',ts:'09:00',sb:true,sd:true,tsb:'16:00',tsd:'09:00'},orders:[],sporder:[],morder:[],lvm:[],day:{},spfix:{},tk:{on:true,text:'',color:'#1e3a8a'},opts:{des:[],role:[]}};
   for(const k in d)if(!S[k])S[k]=d[k];
   if(!S.hol)S.hol=Object.assign({},DEFHOL);
   if(!S.start)S.start=curFri();
@@ -153,6 +153,7 @@ function norm(){
   S.people.forEach(p=>{if(p.sp===undefined)p.sp=false});
   if(!S.opts.des)S.opts.des=[];if(!S.opts.role)S.opts.role=[];
   if(S.auto.thu===undefined)S.auto.thu=true;if(S.auto.fs===undefined)S.auto.fs=true;
+  if(S.auto.sb===undefined)S.auto.sb=true;if(S.auto.sd===undefined)S.auto.sd=true;if(!S.auto.tsb)S.auto.tsb='16:00';if(!S.auto.tsd)S.auto.tsd='09:00';
   if(!S.auto.tt)S.auto.tt='16:00';if(!S.auto.tf)S.auto.tf='09:00';if(!S.auto.ts)S.auto.ts='09:00';
 }
 const P=id=>S.people.find(p=>p.id===id);
@@ -229,6 +230,7 @@ const DABS='জনাব {পদবী} {নাম} {বিপি}, {শুক�
 const DSP='জনাব {পদবী} {নাম} {বিপি}, {ছুটি} উপলক্ষে {তারিখ} তারিখে আপনার বিশেষ ডিউটি নির্ধারিত হয়েছে। সকাল ৯টার আগেই অফিসে উপস্থিত হয়ে যথাযথভাবে ডিউটি পালন করার জন্য অনুরোধ করা হলো।';
 const DDAY='জনাব {পদবী} {নাম} {বিপি}, {অনুপস্থিত} অনুপস্থিত থাকায় {কারণ} শুধু {দিন} আপনাকে ডিউটি করতে হবে। সকাল ৯টার আগেই অফিসে উপস্থিত হয়ে যথাযথভাবে ডিউটি পালন করার জন্য অনুরোধ করা হলো।';
 const DPART='জনাব {পদবী} {নাম} {বিপি}, এই সপ্তাহে আপনার নির্ধারিত রোস্টার ডিউটির মধ্যে আপনি শুধু {দিন} ডিউটি করবেন {কারণ}। অন্য দিন {বদলি} ডিউটি করবেন। সকাল ৯টার আগেই অফিসে উপস্থিত হয়ে যথাযথভাবে ডিউটি পালন করার জন্য অনুরোধ করা হলো।';
+const DSPA='জনাব {পদবী} {নাম} {বিপি} আজ {তারিখ} তারিখে {ছুটি} উপলক্ষে বিশেষ ডিউটিতে কর্তব্যরত রয়েছেন। সকলের অবগতির জন্য জানানো হলো।';
 const dayNm=(w,k)=>k==='f'?'শুক্রবার ('+fd(w.date)+')':'শনিবার ('+fd(addD(w.date,1))+')';
 const dayRs=(w,k)=>{const o=S.day[k==='f'?w.date:addD(w.date,1)]||{};return (o.reason||'')+(o.note?' — '+o.note:'')};
 function msgDay(w,k){const id=k==='f'?w.fri:w.sat;return fill(DDAY,id,w.date,addD(w.date,1),{ab:fullnm(w.duty),rs:dayRs(w,k),day:dayNm(w,k)})}
@@ -241,6 +243,7 @@ function msgDuty(w){const sat=addD(w.date,1);
 function msgAuto(id,w,t){return fill(S.tpl.auto||DAUTO,id,w.date,addD(w.date,1),{dt:fd(t)})}
 function msgOn(id,w,t){return fill(S.tpl.on||DON,id,w.date,addD(w.date,1),{dt:fd(t)})}
 function msgAbs(w,id,all){const nx=all.find(x=>x.date>w.date&&x.duty===id);return fill(S.tpl.abs||DABS,id,w.date,addD(w.date,1),{rep:fullnm(w.duty),nx:nx?'শুক্রবার ('+fd(nx.date)+')':'এখনো নির্ধারিত নয়',rs:w.rs})}
+function msgSpAuto(x){return fill(DSPA,x.duty,x.date,x.date,{hol:x.name,dt:fd(x.date)})}
 function msgSp(x){return fill(S.tpl.sp||DSP,x.duty,x.date,x.date,{hol:x.name,dt:fd(x.date)})}
 const waUrl=(id,m)=>{const p=P(id);let n=(p&&p.phone||'').replace(/\D/g,'');if(n.startsWith('0'))n='88'+n;return 'https://wa.me/'+n+'?text='+encodeURIComponent(m)};
 function callBtn(id,lb,cls){const p=P(id);let n=(p&&p.phone||'').replace(/\D/g,'');if(!n)return '<button disabled style="opacity:.5">📞 নম্বর নেই</button>';if(n.startsWith('0'))n='88'+n;return '<button data-a="call"'+(cls?' class="'+cls+'"':'')+' data-cn="+'+n+'" data-p="'+esc(fullnm(id))+'">'+(lb||'📞 কল')+'</button>'}
@@ -498,6 +501,11 @@ const autoHtml=()=>{const a=S.auto||{};
   +'<label style="display:block;margin:8px 0 2px"><input type="checkbox" id="au_fs" style="width:auto"'+(a.fs!==false?' checked':'')+'> শুক্র ও শনিবার — সবাইকে জানানো কে কর্তব্যরত</label>'
   +'<div class="row" style="align-items:center;margin:0 0 2px 26px"><span class="sub">শুক্রবার:</span>'+tm('au_tf',a.tf||'09:00')+'</div>'
   +'<div class="row" style="align-items:center;margin:0 0 6px 26px"><span class="sub">শনিবার:</span>'+tm('au_ts',a.ts||'09:00')+'</div>'
+  +'<div style="border-top:1px solid var(--bd);margin:12px 0 4px"></div>'
+  +'<label style="display:block;margin:8px 0 2px"><input type="checkbox" id="au_sb" style="width:auto"'+(a.sb!==false?' checked':'')+'> সরকারি ছুটির আগের দিন — বিশেষ ডিউটির সদস্যকে মেসেজ</label>'
+  +'<div class="row" style="align-items:center;margin:0 0 6px 26px"><span class="sub">সময়:</span>'+tm('au_tsb',a.tsb||'16:00')+'</div>'
+  +'<label style="display:block;margin:8px 0 2px"><input type="checkbox" id="au_sd" style="width:auto"'+(a.sd!==false?' checked':'')+'> সরকারি ছুটির দিন — সবাইকে জানানো কে বিশেষ ডিউটিতে</label>'
+  +'<div class="row" style="align-items:center;margin:0 0 6px 26px"><span class="sub">সময়:</span>'+tm('au_tsd',a.tsd||'09:00')+'</div>'
   +'<div class="sub">সংরক্ষণ চাপলে চালু/বন্ধ ও সময় কার্যকর হয়। Google প্রায় ১৫ মিনিট পরপর দেখে, তাই ঠিক সময়ের ০–১৫ মিনিটের মধ্যে যায়। যাঁকে আগেই ডিউটির মেসেজ পাঠানো চিহ্নিত আছে, তাঁকে বৃহস্পতিবারে আর যাবে না।</div></div>'};
 function settingsHtml(){
   seedOpts();
@@ -598,7 +606,7 @@ function collect(){
   if($('pra'))S.prShow=$('pra').checked;
   if($('stt')&&$('stt').value)S.start=$('stt').value;
   if($('tpl'))S.tpl={duty:$('tpl').value.trim(),rep:$('tplr').value.trim(),abs:$('tpla').value.trim(),sp:$('tpls').value.trim(),on:($('tplo')||{value:''}).value.trim(),auto:($('tplm')||{value:''}).value.trim()};
-  if($('au_on')){const tv=(id,d)=>{const v=($(id)||{}).value||'';return /^\d{2}:\d{2}$/.test(v)?v:d};S.auto={on:$('au_on').checked,thu:$('au_thu').checked,fs:$('au_fs').checked,tt:tv('au_tt','16:00'),tf:tv('au_tf','09:00'),ts:tv('au_ts','09:00')}}
+  if($('au_on')){const tv=(id,d)=>{const v=($(id)||{}).value||'';return /^\d{2}:\d{2}$/.test(v)?v:d};S.auto={on:$('au_on').checked,thu:$('au_thu').checked,fs:$('au_fs').checked,tt:tv('au_tt','16:00'),tf:tv('au_tf','09:00'),ts:tv('au_ts','09:00'),sb:($('au_sb')||{checked:true}).checked,sd:($('au_sd')||{checked:true}).checked,tsb:tv('au_tsb','16:00'),tsd:tv('au_tsd','09:00')}}
   document.querySelectorAll('.set [data-f]').forEach(el=>{const p=S.people[+el.dataset.i];if(!p)return;const f=el.dataset.f;
     if(f==='du'){if(elig(p,nextF())!==el.checked)setDuty(p,el.checked)}else if(f==='sp'||f==='sr'||f==='pr')p[f]=el.checked;else if(f==='lv')p.nl=!el.checked;else if(f==='name')p.name=el.value.trim()||p.name;else p[f]=el.value.trim()});
   S.opts=S.opts||{des:[],role:[]};
@@ -1134,7 +1142,7 @@ function openAutoAdm(){
 async function ausave(btn){
   if(!isAdm||!S||!$('au_on'))return;
   const tv=(id,d)=>{const v=($(id)||{}).value||'';return /^\d{2}:\d{2}$/.test(v)?v:d};
-  S.auto={on:$('au_on').checked,thu:$('au_thu').checked,fs:$('au_fs').checked,tt:tv('au_tt','16:00'),tf:tv('au_tf','09:00'),ts:tv('au_ts','09:00')};
+  S.auto={on:$('au_on').checked,thu:$('au_thu').checked,fs:$('au_fs').checked,tt:tv('au_tt','16:00'),tf:tv('au_tf','09:00'),ts:tv('au_ts','09:00'),sb:($('au_sb')||{checked:true}).checked,sd:($('au_sd')||{checked:true}).checked,tsb:tv('au_tsb','16:00'),tsd:tv('au_tsd','09:00')};
   const old=btn.textContent;btn.disabled=true;btn.textContent='সংরক্ষণ হচ্ছে…';
   try{await save();const r=$('ausres');if(r)r.textContent='✅ সংরক্ষণ হয়েছে'}catch(e){const r=$('ausres');if(r)r.textContent='❌ সংরক্ষণ হয়নি'}
   btn.disabled=false;btn.textContent=old;
@@ -1356,8 +1364,16 @@ async function pubAuto(){
         });
       }catch(e){console.error(e)}
     });
+    const t0=iso(new Date());
+    simSp().filter(x=>x.duty&&x.date>=t0&&x.date<=end).forEach(x=>{
+      try{
+        const b=bpP(x.duty),dd=addD(x.date,-1);
+        if(b&&dd>=t0&&!(S.spsent&&S.spsent[x.date]))items.push({d:dd,s:'spb',title:'বিশেষ ডিউটি',body:msgSp(x),to:[b]});
+        items.push({d:x.date,s:'spd',title:'আজ বিশেষ ডিউটিতে কর্তব্যরত',body:msgSpAuto(x),to:'all',ex:[b].filter(Boolean)});
+      }catch(e){console.error(e)}
+    });
     const a=S.auto||{};
-    const payload={cfg:{on:!!a.on,thu:a.thu!==false,fs:a.fs!==false,tt:a.tt||'16:00',tf:a.tf||'09:00',ts:a.ts||'09:00'},items:items,link:location.href.split('#')[0].split('?')[0],icon:new URL('icon-192.png',location.href).href};
+    const payload={cfg:{on:!!a.on,thu:a.thu!==false,fs:a.fs!==false,tt:a.tt||'16:00',tf:a.tf||'09:00',ts:a.ts||'09:00',sb:a.sb!==false,sd:a.sd!==false,tsb:a.tsb||'16:00',tsd:a.tsd||'09:00'},items:items,link:location.href.split('#')[0].split('?')[0],icon:new URL('icon-192.png',location.href).href};
     await db.doc('private/auto').set({json:JSON.stringify(payload),t:Date.now()});
   }catch(e){console.error(e)}
 }
