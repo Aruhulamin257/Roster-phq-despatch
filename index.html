@@ -64,6 +64,29 @@ select,input,textarea{border:1px solid var(--bd);background:var(--card);color:va
 .pp{width:112px;height:140px;object-fit:cover;border-radius:12px;border:2px solid var(--gd);margin:0 auto;display:block}
 .ft{text-align:center;color:var(--mu);font-size:11px;margin:6px 0 20px;line-height:1.7}
 
+.box.nbx{max-width:430px;padding:0;text-align:left;overflow:hidden;display:flex;flex-direction:column;max-height:86vh;border:1px solid var(--bd);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.nbx .nh{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,#2a3fa8 0%,#162263 70%);color:#fff;border-bottom:3px solid var(--gd)}
+.nbx .nh .ni0{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.nbx .nh .nt0{flex:1;min-width:0}.nbx .nh .nt1{font-size:14px;font-weight:700;line-height:1.3}.nbx .nh .nt2{font-size:11px;opacity:.8;line-height:1.3}
+.nbx .nh button{flex:none;width:30px;height:30px;padding:0;border-radius:50%;background:rgba(255,255,255,.16);border:0;color:#fff;font-size:14px;line-height:30px}
+.nbx .nl{overflow:auto;padding:4px 12px 12px;flex:1;-webkit-overflow-scrolling:touch}
+.nbx .nd{font-size:10.5px;letter-spacing:.3px;color:var(--gd);font-weight:700;margin:12px 2px 2px;display:flex;align-items:center;gap:8px}.nbx .nd::after{content:'';flex:1;height:1px;background:var(--bd)}
+.nbx .nc{position:relative;background:var(--bg);border:1px solid var(--bd);border-left:3px solid var(--gd);border-radius:11px;padding:7px 10px 8px;margin:6px 0}
+.nbx .nc.au{border-left-color:#6366f1}.nbx .nc.nw{border-color:var(--ac);border-left-color:var(--ac);background:var(--acbg)}
+.nbx .nc .t1{font-size:12.5px;font-weight:700;line-height:1.4;padding-right:42px}
+.nbx .nc .t2{font-size:12px;line-height:1.5;margin:2px 0 4px;white-space:pre-wrap;word-break:break-word}
+.nbx .nc .t3{font-size:10.5px;color:var(--mu);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.nbx .nc .pill{border:1px solid var(--bd);border-radius:99px;padding:0 7px;font-size:10px;line-height:17px;color:var(--mu);background:var(--card)}
+.nbx .nc .pill.au{color:#6366f1;border-color:#6366f1}.nbx .nc .pill.dv{color:var(--ac);border-color:var(--ac)}
+.nbx .nc .newp{position:absolute;top:7px;right:8px;background:#dc2626;color:#fff;border-radius:99px;font-size:9.5px;line-height:15px;padding:0 6px;font-weight:700}
+.nbx .nc details{margin-top:5px}.nbx .nc summary{font-size:10.5px;color:var(--ac);cursor:pointer;list-style:none}.nbx .nc summary::-webkit-details-marker{display:none}
+.nbx .nc .who{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.nbx .nc .who span{font-size:10.5px;background:var(--card);border:1px solid var(--bd);border-radius:7px;padding:1px 7px;line-height:1.5}
+.nbx .nem{text-align:center;color:var(--mu);font-size:12px;padding:26px 8px}.nbx .nem b{display:block;font-size:30px;margin-bottom:4px;font-weight:400}
+.nbx .nf{text-align:center;color:var(--mu);font-size:10.5px;padding:6px 0 0}
+.cr.sr{gap:9px;padding:7px 10px 7px 8px}.cr.sr .db{min-width:58px;padding:2px 3px}.cr.sr .db .cd2{display:block;margin-top:1px;font-size:9.5px}
+.cr.sr .nm2{flex:1;min-width:0}.cr.sr .nm2 b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.35;font-weight:700}
+.cr.sr .nm2 span{display:block;font-size:11px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.ban .nbell{position:absolute;right:10px;top:8px;width:40px;height:40px;padding:0;margin:0;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:19px;line-height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:none}.ban .nbell .nbd{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;line-height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;text-align:center}
 .ban .wx{position:absolute;left:10px;top:8px;font-size:11px;line-height:1.3;text-align:left;color:#dfe6ff;background:rgba(255,255,255,.12);border-radius:10px;padding:3px 8px}.ban .wx:empty{display:none}.ban .wx b{font-size:13px;color:#fff}
 .hero{background:linear-gradient(135deg,var(--acbg),var(--card) 70%)}
 #app{display:flex;flex-direction:column}.colL,.colR{display:contents}.a-ban{order:1}.a-tabs{order:2}.a-nt{order:3}.a-hero{order:4}.a-main{order:5}.a-ft{order:6}
@@ -306,7 +329,7 @@ const MLP={r:'rN',s:'sN',h:'hN',sh:'shN'};
 const lim=k=>ui[MLP[k]]!=null?ui[MLP[k]]:initN(k);
 const retDate=l=>addD(lspans(l).reduce((m,x)=>x[1]>m?x[1]:m,'0000-00-00'),1);
 
-function banner(){return '<div class="ban"><div class="wx" id="wx"></div><div class="bis">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><img class="lg" src="'+LOGO+'" alt="লোগো"><div class="o">পুলিশ হেডকোয়ার্টার্স</div><div class="b">কেন্দ্রীয় ডেসপাচ শাখা</div><div class="m">✉️ চিঠিপত্র গ্রহণ ও বিতরণ</div><div class="r">রোস্টার ডিউটি ও ছুটির হিসাব</div><div class="ck" id="clk"></div></div><div class="sub" style="text-align:center;margin:6px 0 2px">প্রতি শুক্র–শনিবার রোস্টার ডিউটি, বিশেষ ডিউটি রোস্টার এবং ছুটির হিসাব</div>'}
+function banner(){return '<div class="ban"><div class="wx" id="wx"></div>'+nbtnTop()+'<div class="bis">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><img class="lg" src="'+LOGO+'" alt="লোগো"><div class="o">পুলিশ হেডকোয়ার্টার্স</div><div class="b">কেন্দ্রীয় ডেসপাচ শাখা</div><div class="m">✉️ চিঠিপত্র গ্রহণ ও বিতরণ</div><div class="r">রোস্টার ডিউটি ও ছুটির হিসাব</div><div class="ck" id="clk"></div></div><div class="sub" style="text-align:center;margin:6px 0 2px">প্রতি শুক্র–শনিবার রোস্টার ডিউটি, বিশেষ ডিউটি রোস্টার এবং ছুটির হিসাব</div>'}
 function homeTab(out,sp,cur){const t=iso(new Date()),nw=out.find(w=>w.date>=upStart()&&w.duty),ns=sp.find(x=>x.date>=t&&x.duty);
   const opt=(tb,ic,ti,sb)=>'<button class="opt" data-a="tab" data-t="'+tb+'"><span class="oi">'+ic+'</span><span class="ot">'+ti+'</span><span class="os">'+(sb||'')+'</span></button>';
   return (editor?'<div class="row" style="justify-content:flex-end;margin:0 0 6px"><button data-a="bc">✉ জরুরি মেসেজ পাঠান</button></div>':'')+'<h2>কী দেখতে চান?</h2><div class="opts">'+opt('r','📋','রোস্টার ডিউটির তালিকা',nw?'পরবর্তী: '+esc(fullnm(nw.duty)):'')+opt('s','⭐','বিশেষ ডিউটির তালিকা',ns?esc(fullnm(ns.duty))+' — '+fd(ns.date):'কোনো বিশেষ ডিউটি নেই')+'</div><div class="opts opts3">'+opt('c','📅','ক্যালেন্ডার','')+opt('l','🏖','ছুটির হিসাব','')+opt('m','👥','সদস্য','')+'</div>'}
@@ -350,17 +373,24 @@ const ml=(k,n,tot)=>{const ini=initN(k);return (tot>n||n>ini)?'<div class="row">
 const dbBlock=(d,cd)=>'<div class="db"><i>শুক্রবার</i><b>'+bn(d.slice(8))+'/'+bn(d.slice(5,7))+'</b><i>শনিবার</i><b>'+bn(addD(d,1).slice(8))+'/'+bn(addD(d,1).slice(5,7))+'</b>'+(cd?'<em class="cd2">'+cd+'</em>':'')+'</div>';
 function heroHtml(out,sp){
   const today=iso(new Date()),on=out.find(w=>today===w.date||today===addD(w.date,1)),nx=out.find(w=>w.date>today&&w.duty);
-  const w=on||nx,st=S.status[today],stT=st==='in'?'✅ ডিউটিতে আছেন':st==='out'?'❌ আজ ডিউটিতে নেই':'⏳ এখনো নিশ্চিত হয়নি';
-  const who=w&&on?(today===w.date?w.fri:w.sat):(w&&w.duty);
+  const w=on||nx,who=w&&on?(today===w.date?w.fri:w.sat):(w&&w.duty);
+  const attOf=(k,id)=>{const a=ATT[k],q=id&&P(id);return (a&&q&&q.bp&&bpn(a.bp)===bpn(q.bp))?a:null};
+  const myBp=U?bpn(bpOf(U)):'',isMe=id=>{const q=id&&P(id);return !!(myBp&&q&&q.bp&&bpn(q.bp)===myBp)};
+  const ftm=t=>{try{return new Date(t).toLocaleTimeString('bn-BD',{timeZone:'Asia/Dhaka',hour:'numeric',minute:'2-digit',hour12:true})}catch(e){return ''}};
+  const aR=on&&who?attOf('r',who):null;
+  const st=S.status[today]||(aR?'in':''),stT=st==='in'?(S.status[today]==='in'?'✅ ডিউটিতে আছেন':'✅ ডিউটিতে আছেন (নিজে উপস্থিতি দিয়েছেন)'):st==='out'?'❌ আজ ডিউটিতে নেই':'⏳ এখনো নিশ্চিত হয়নি';
   let h='<div class="hero">';
   if(w&&who){const p=P(who);
     h+='<div class="hl">'+(on?'আজ ডিউটিতে ('+wkdn(today)+')':'আগামী রোস্টার ডিউটি')+'</div><div class="hr">'+avt(who,72)+'<div><div class="hn"><span data-a="prof" data-id="'+who+'" class="lk2">'+esc(fullnm(who))+'</span>'+tg(who)+'</div>'+(p.role?'<div class="sub">'+esc(p.role)+'</div>':'')+(on?'<div style="margin-top:2px">'+stT+'</div>':'')+'</div></div>';
     h+='<div class="hd2">🗓 '+rgs(w.date)+'</div>';
     if(on&&nx)h+='<div class="sub" style="margin-top:6px">পরবর্তী ডিউটি: <b>'+esc(fullnm(nx.duty))+'</b> — '+rgs(nx.date)+'</div>';
   }else h+='<div class="hl">রোস্টার ডিউটি</div><div class="sub">রোস্টারে কোনো সদস্য নেই</div>';
-  const sx=sp.find(x=>x.date===today&&x.duty);
+  const sx=sp.find(x=>x.date===today&&x.duty),aS=sx?attOf('s',sx.duty):null,sn=sp.find(x=>x.date>today&&x.duty);
   if(sx)h+='<div class="note" style="background:var(--acbg);color:var(--tx)">⭐ আজ বিশেষ ডিউটি ('+esc(sx.name)+'): <b>'+esc(fullnm(sx.duty))+'</b></div>';
+  else if(sn)h+='<div class="sub" style="margin-top:6px">⭐ আগামী বিশেষ ডিউটি ('+esc(sn.name)+'): <b>'+esc(fullnm(sn.duty))+'</b> — '+fd(sn.date)+'</div>';
   let r='';
+  if(on&&who&&isMe(who)&&!aR&&S.status[today]!=='out')r+='<button class="pri" data-a="selfatt" data-k="r">🙋 আমি হাজির হয়েছি</button>';
+  if(sx&&isMe(sx.duty)&&!aS)r+='<button class="pri" data-a="selfatt" data-k="s">🙋 আমি বিশেষ ডিউটিতে হাজির হয়েছি</button>';
   if(editor&&on)r+='<button data-a="st" data-v="in">✅ আছেন</button><button data-a="st" data-v="out">❌ নেই</button><button data-a="st" data-v="">মুছুন</button>';
   let ann='';
   if(editor&&on&&who){
@@ -371,7 +401,11 @@ function heroHtml(out,sp){
   if(w&&who){const hm=(on?'আজকের রোস্টার ডিউটি: ':'আগামী রোস্টার ডিউটি: ')+fullnm(who)+' — '+rgs(w.date)+(on?' ('+stT+')':'');
     r+='<button class="wa" data-a="wa" data-u="https://wa.me/?text='+encodeURIComponent(hm)+'" data-m="আপনি কি ডিউটির তথ্য WhatsApp-এ জানাতে চান?">WhatsApp-এ জানান</button>'+(vcall()?callBtn(who,'📞 ডিউটিকারীকে কল'):'')}
   if(S.office)r+='<button data-a="call" data-cn="'+esc(String(S.office).replace(/[^\d+]/g,''))+'" data-p="অফিসের সরকারি নম্বর">☎ অফিস: '+esc(S.office)+'</button>';
-  return h+(r?'<div class="row">'+r+'</div>':'')+ann+'</div>'}
+  let sl='';
+  const dl=k=>editor?' <b data-a="selfdel" data-k="'+k+'" class="lk">✕ মুছুন</b>':'';
+  if(aR&&S.status[today]!=='out')sl+='<div class="sent" style="font-weight:600">✅ উক্ত সদস্য নিজে হাজির হয়ে উপস্থিতি দিয়েছেন ('+ftm(aR.t)+')'+dl('r')+'</div>';
+  if(aS)sl+='<div class="sent" style="font-weight:600">✅ বিশেষ ডিউটির সদস্য নিজে হাজির হয়ে উপস্থিতি দিয়েছেন ('+ftm(aS.t)+')'+dl('s')+'</div>';
+  return h+(r?'<div class="row">'+r+'</div>':'')+ann+sl+'</div>'}
 const exw=(w,cur)=>ui.xw[w.date]!==undefined?ui.xw[w.date]:w.date===cur;
 function weekRow(w,cur,ser){const isCur=w.date===cur,s2=addD(w.date,1);return '<div class="cr" data-a="xw" data-d="'+w.date+'">'+(ser?'<div class="ser">'+bn(ser)+'</div>':'<div class="ser" style="opacity:.4">–</div>')+'<div class="cdt">'+bn(w.date.slice(8))+'/'+bn(w.date.slice(5,7))+' – '+bn(s2.slice(8))+'/'+bn(s2.slice(5,7))+'</div>'+(cdW(w)?'<span class="cd2">'+cdW(w)+'</span>':'')+(w.duty?avt(w.duty,26)+'<div class="cnm">'+esc(fullnm(w.duty))+'</div>':'<div class="cnm sub">কেউ নেই</div>')+((w.sk.length||w.dov||w.man)?'<span title="বদলি/পরিবর্তন আছে">🔁</span>':'')+'<span class="chip '+(isCur?'c1':'c3')+'">'+(isCur?'এই সপ্তাহ':'▾')+'</span></div>'}
 function weekCard(w,cur,all,ser){
@@ -423,19 +457,25 @@ function rosterTab(out,sp,cur){
   return h}
 function spTab(sp,cur){
   const t=iso(new Date()),upAllS=sp.filter(z=>z.date>=t),upc=upAllS.slice(0,lim('s')),pastAll=sp.filter(x=>x.date<t).reverse(),pastS=pastAll.slice(0,lim('sh'));
-  let h='<h2>⭐ বিশেষ ডিউটি (সরকারি ছুটির দিন)</h2>'+(editor?'<div class="sub">শুক্র-শনিবার বাদে শুধু সরকারি ছুটির দিনের ডিউটি। সদস্যের ⚙ ঘরে "বিশেষ ডিউটি" টিক দিলে তিনি এখানে আসবেন।</div>':'');
+  let h='<h2>⭐ বিশেষ ডিউটি (সরকারি ছুটির দিন)</h2><div class="sub" style="margin:-4px 0 6px">কোনো ডিউটিতে চাপলে বিস্তারিত খুলবে, আবার চাপলে ছোট হবে।</div>'+(editor?'<div class="sub">শুক্র-শনিবার বাদে শুধু সরকারি ছুটির দিনের ডিউটি। সদস্যের ⚙ ঘরে "বিশেষ ডিউটি" টিক দিলে তিনি এখানে আসবেন।</div>':'');
   if(editor){h+='<div class="row"><button data-a="spot">🔀 বিশেষ ডিউটির ক্রম সাজান</button></div>';if(ui.sord)h+=ordList('sp')}
-  h+=(upc.length?'<div class="wlist">'+upc.map(x=>spFull(x,sp,t,upc)).join('')+'</div>'+ml('s',upc.length,upAllS.length):'<div class="sub" style="margin-top:8px">কোনো বিশেষ ডিউটি নেই।'+(editor?' ক্যালেন্ডারে সরকারি ছুটি যোগ করুন ও সদস্যদের "বিশেষ ডিউটি" টিক দিন।':'')+'</div>');
+  h+=(upc.length?'<div class="wlist">'+upc.map(x=>exs(x,t)?spFull(x,sp,t,upc):spRow(x,t,upc)).join('')+'</div>'+ml('s',upc.length,upAllS.length):'<div class="sub" style="margin-top:8px">কোনো বিশেষ ডিউটি নেই।'+(editor?' ক্যালেন্ডারে সরকারি ছুটি যোগ করুন ও সদস্যদের "বিশেষ ডিউটি" টিক দিন।':'')+'</div>');
   if(pastAll.length)h+='<h2>আগের ডিউটি (সম্পন্ন)</h2><div class="wlist">'+pastS.map(x=>exs(x,t)?spFull(x,sp,t,upc):spRow(x,t,upc)).join('')+'</div>'+ml('sh',pastS.length,pastAll.length);
   return h+spTable(sp)}
 function spTable(sp){const R=exRange(),t=iso(new Date()),srows=sp.filter(x=>x.date>=R.from&&x.date<=R.to),pn=id=>'<span class="ia">'+avt(id,22)+'<span data-a="prof" data-id="'+id+'" class="lk2">'+esc(fullnm(id))+'</span></span>';
   return '<h2>বিশেষ ডিউটির হিসাব</h2><div class="row" style="margin:0 0 8px"><button class="pri" data-a="xls">📥 এক্সেল (.xlsx) ডাউনলোড</button><button data-a="pdf">🖨 PDF/প্রিন্ট (ছবিসহ)</button></div>'+'<div class="sub">বিশেষ ডিউটির তালিকা ('+bn(srows.length)+' দিন)</div><div class="card tw"><table><tr><th>ক্রম</th><th>তারিখ</th><th>কোন ছুটি</th><th>ডিউটিকারী</th><th>অবস্থা</th><th>উপস্থিতি</th><th>মন্তব্য</th></tr>'
    +srows.map((x,i)=>'<tr><td>'+bn(i+1)+'</td><td>'+fd(x.date)+'<br>'+wkdn(x.date)+'</td><td>'+esc(x.name)+'</td><td>'+(x.duty?pn(x.duty):'—')+'</td><td>'+(x.date<t?'✅ সম্পন্ন':x.date===t?'🔵 আজ':'🗓 নির্ধারিত')+'</td><td>'+(S.att[x.date]?'✅':'—')+'</td><td>'+((x.sk&&x.sk.length?esc(x.sk.map(fullnm).join(', '))+' অনুপস্থিত ('+esc(x.rs)+') — বদলি':'')+(x.ov?(x.sk&&x.sk.length?'; ':'')+'অ্যাডমিন নির্ধারিত':'')||'—')+'</td></tr>').join('')+'</table></div>'}
 const exs=(x,t)=>ui.xs[x.date]!==undefined?ui.xs[x.date]:x.date===t;
-function spFull(x,sp,t,upc){return '<div class="wk"><div class="wh"'+(x.date<t?' data-a="xs" data-d="'+x.date+'"':'')+'>'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'')+'<div class="db"><b>'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+'</b><i>'+wkdn(x.date)+'</i>'+(cdS(x)?'<em class="cd2">'+cdS(x)+'</em>':'')+'</div><div class="wm">'+(x.duty?avt(x.duty,42)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+x.duty+'" class="lk2">'+esc(fullnm(x.duty))+'</span></div><div class="sub">'+esc(x.name)+'</div><div class="sub">'+spInfo(x,sp)+'</div></div>':'<div class="sub">'+esc(x.name)+' — কেউ নেই</div>')+'</div><div class="ws">'+(x.date<t?'<span class="chip c2">সম্পন্ন</span>':x.date===t?'<span class="chip c1">আজ</span>':'<span class="chip c3">নির্ধারিত</span>')+(!editor&&vcall()&&x.duty?'<div style="margin-top:4px;text-align:right">'+callBtn(x.duty,'📞','mini')+'</div>':'')+'</div></div>'
+function spFull(x,sp,t,upc){return '<div class="wk"><div class="wh" data-a="xs" data-d="'+x.date+'">'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'')+'<div class="db"><b>'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+'</b><i>'+wkdn(x.date)+'</i>'+(cdS(x)?'<em class="cd2">'+cdS(x)+'</em>':'')+'</div><div class="wm">'+(x.duty?avt(x.duty,42)+'<div class="wn"><div class="n1"><span data-a="prof" data-id="'+x.duty+'" class="lk2">'+esc(fullnm(x.duty))+'</span></div><div class="sub">'+esc(x.name)+'</div><div class="sub">'+spInfo(x,sp)+'</div></div>':'<div class="sub">'+esc(x.name)+' — কেউ নেই</div>')+'</div><div class="ws">'+(x.date<t?'<span class="chip c2">সম্পন্ন</span>':x.date===t?'<span class="chip c1">আজ</span>':'<span class="chip c3">নির্ধারিত</span>')+(!editor&&vcall()&&x.duty?'<div style="margin-top:4px;text-align:right">'+callBtn(x.duty,'📞','mini')+'</div>':'')+'</div></div>'
     +(x.sk&&x.sk.length?'<div class="note">🔁 <b>'+esc(x.sk.map(fullnm).join(', '))+'</b> অনুপস্থিত ('+esc(x.rs||'')+') — <b>'+esc(x.duty?fullnm(x.duty):'বদলি নেই')+'</b> ডিউটি করছেন</div>':'')+(x.ov?'<div class="note n2c">✍ অ্যাডমিন নির্ধারিত</div>':'')+(S.att[x.date]?'<div class="sent">✅ উপস্থিত হয়ে ডিউটি করেছেন (অ্যাডমিন নিশ্চিত)</div>':'')+(S.spsent[x.date]?'<div class="sent">✓ মেসেজ পাঠানো হয়েছে ('+esc(S.spsent[x.date])+')</div>':'')
     +(editor&&x.duty?'<div class="row"><button class="wa" data-a="wa" data-u="'+esc(waUrl(x.duty,msgSp(x)))+'" data-m="'+esc('আপনি কি '+fullnm(x.duty)+'-কে '+fd(x.date)+' তারিখের বিশেষ ডিউটি জানাতে চান?')+'">WhatsApp-এ পাঠান</button>'+ntfB(x.duty,msgSp(x),'বিশেষ ডিউটি',['spsent',x.date])+callBtn(x.duty)+'<button data-a="spsent" data-d="'+x.date+'">✓ পাঠানো</button><button data-a="spdlg" data-d="'+x.date+'">🔁 ব্যক্তি বদলান</button><button data-a="att" data-d="'+x.date+'">'+(S.att[x.date]?'↩ উপস্থিতি বাতিল':'☑ উপস্থিত হয়ে ডিউটি করেছেন')+'</button></div>':'')+'</div>'}
-function spRow(x,t,upc){return '<div class="cr" data-a="xs" data-d="'+x.date+'">'+(x.date>=t?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'<div class="ser" style="opacity:.4">–</div>')+'<div class="cdt">'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+' ('+wkdn(x.date)+')</div>'+(cdS(x)?'<span class="cd2">'+cdS(x)+'</span>':'')+(x.duty?avt(x.duty,26)+'<div class="cnm">'+esc(fullnm(x.duty))+'</div>':'<div class="cnm sub">কেউ নেই</div>')+'<span class="chip c3">'+esc(x.name)+'</span></div>'}
+function spRow(x,t,upc){
+  const un=x.date>=t;
+  return '<div class="cr sr" data-a="xs" data-d="'+x.date+'">'
+   +(un?'<div class="ser">'+bn(upc.indexOf(x)+1)+'</div>':'<div class="ser" style="opacity:.4">–</div>')
+   +'<div class="db"><b>'+bn(x.date.slice(8))+'/'+bn(x.date.slice(5,7))+'</b><i>'+wkdn(x.date)+'</i>'+(cdS(x)?'<em class="cd2">'+cdS(x)+'</em>':'')+'</div>'
+   +(x.duty?avt(x.duty,34)+'<div class="nm2"><b>'+esc(fullnm(x.duty))+'</b><span>'+esc(x.name)+'</span></div>':'<div class="nm2"><b class="sub">কেউ নেই</b><span>'+esc(x.name)+'</span></div>')
+   +(x.date===t?'<span class="chip c1">আজ</span>':'<span class="chip c3">▾</span>')+'</div>'}
 function calHtml(out,sp){
   const y=ui.cm.y,m=ui.cm.m,first=new Date(y,m,1),dim=new Date(y,m+1,0).getDate(),off=first.getDay(),tdy=iso(new Date());
   const mn=first.toLocaleDateString('bn-BD',{month:'long',year:'numeric'}),by={},spm={};
@@ -581,6 +621,12 @@ async function enableNotif(silent){
     window._ntfTok=t;if(!silent){mtoast('✅ নোটিফিকেশন চালু হয়েছে');}render();
   }catch(e){if(!silent)alert('চালু করা যায়নি: '+(e.code||e.message||e))}
 }
+function ntfAskMaybe(){try{
+  if(window._ntfAsked||!ntfOK()||!U||!M||!M.approved||M.banned||isAdm||ui.dlg)return;
+  const p=Notification.permission;
+  if(p==='granted')return;
+  window._ntfAsked=1;ui.dlg={k:p==='denied'?'ntfden':'ntfask'};
+}catch(e){}}
 function ntfBtn(){
   if(!ntfOK()||!U||!M||!M.approved||M.banned||isAdm)return '';
   const on=Notification.permission==='granted'&&(M.fcm||[]).length>0;
@@ -593,7 +639,9 @@ function adminBar(){
 function dlgHtml(){
   const g=ui.dlg;if(!g)return '';let b='';
   const yn=(y,n)=>'<div class="row" style="justify-content:center"><button class="pri" data-a="'+y[0]+'">'+y[1]+'</button><button data-a="'+n[0]+'">'+n[1]+'</button></div>';
-  if(g.k==='wa')b='<div class="ic">💬</div><div class="dt">'+esc(g.m)+'</div><div class="sub">"হ্যাঁ" চাপলে WhatsApp খুলবে। মেসেজ যেতে সেখানে Send চাপতে হবে।</div><div class="row" style="justify-content:center"><a class="btn pri" data-a="wyes" target="_blank" rel="noopener" href="'+esc(g.u)+'">হ্যাঁ, জানাব</a><button data-a="dno">না</button></div>';
+  if(g.k==='ntfask')b='<div class="ic">🔔</div><div class="dt">নোটিফিকেশন চালু করুন</div><div class="sub" style="margin:4px 0 12px">ডিউটির মেসেজ ও গুরুত্বপূর্ণ ঘোষণা যাতে সময়মতো সরাসরি আপনার ফোনে পৌঁছায়, সেজন্য নোটিফিকেশন চালু করে রাখুন। পরের ধাপে ফোন অনুমতি চাইলে <b>"অনুমতি দিন / Allow"</b> চাপুন।</div><div class="row" style="justify-content:center"><button class="pri" data-a="ntfask">🔔 চালু করুন</button><button data-a="dno">এখন না</button></div>';
+  else if(g.k==='ntfden')b='<div class="ic">🔕</div><div class="dt">নোটিফিকেশন বন্ধ করা আছে</div><div class="sub" style="margin:4px 0 12px;text-align:left">ডিউটির মেসেজ পেতে ফোন বা ব্রাউজারের সেটিংস থেকে এই অ্যাপের নোটিফিকেশন চালু করুন। যেমন: ব্রাউজারের ঠিকানার পাশের 🔒 বা ⓘ চিহ্নে চাপুন → <b>অনুমতি / Permissions</b> → <b>নোটিফিকেশন</b> → <b>Allow</b>। এরপর অ্যাপটি আবার খুলুন।</div><div class="row" style="justify-content:center"><button class="pri" data-a="dno">বুঝেছি</button></div>';
+  else if(g.k==='wa')b='<div class="ic">💬</div><div class="dt">'+esc(g.m)+'</div><div class="sub">"হ্যাঁ" চাপলে WhatsApp খুলবে। মেসেজ যেতে সেখানে Send চাপতে হবে।</div><div class="row" style="justify-content:center"><a class="btn pri" data-a="wyes" target="_blank" rel="noopener" href="'+esc(g.u)+'">হ্যাঁ, জানাব</a><button data-a="dno">না</button></div>';
   else if(g.k==='sent'){const w=sim().find(x=>x.date===g.d);b='<div class="ic">✅</div><div class="dt">মেসেজ পাঠানো হয়ে গেছে বলে চিহ্নিত করবেন?</div><div class="sub">'+esc(w&&w.duty?fullnm(w.duty):'')+' · '+fd(g.d)+'</div>'+yn(['yes','হ্যাঁ, পাঠিয়েছি'],['dno','না'])}
   else if(g.k==='call')b='<div class="ic">📞</div><div class="sub">'+esc(g.p)+'</div><div style="font-size:24px;font-weight:700;margin:8px 0;user-select:all">'+esc(g.n.replace(/^\+88/,''))+'</div><div class="row" style="justify-content:center"><a class="btn pri" data-a="dno" target="_blank" rel="noopener" href="tel:'+esc(g.n)+'">ডায়াল করুন</a><button data-a="ccopy">কপি</button><button data-a="dno">বন্ধ</button></div><div class="sub" id="cmsg">ডায়াল না হলে নম্বরটি কপি করে ফোনে ডায়াল করুন</div>';
   else if(g.k==='abs'){const w=sim().find(x=>x.date===g.d);if(!w)return '';const X=g.mode==='abs'?w.duty:(w.sk[0]||w.duty),ab=S.absent[g.d]||[];
@@ -627,17 +675,17 @@ function dlgHtml(){
        +'<div style="text-align:left;margin-top:8px">'+B.list.map(i=>'<div class="pl"><span>'+esc(fullnm(i))+'</span>'+(B.sent[i]?'<span>✓ পাঠানো</span>':'<a class="btn mini" data-a="bcsent" data-id="'+i+'" target="_blank" rel="noopener" href="'+esc(mk(i))+'">WhatsApp</a>')+'</div>').join('')+'</div>'+((isAdm&&NOTIFY_URL)?'<div class="row" style="justify-content:center;margin-top:6px"><button class="pri" data-a="bcn">🔔 সবাইকে নোটিফিকেশনেও পাঠান</button></div>':'')+'<div class="row" style="justify-content:center"><button data-a="bcback">← মেসেজ বদলান</button><button data-a="dno">বন্ধ</button></div>'}}
   else if(g.k==='nbox')b=nboxHtml();
   else if(g.k==='login')b='<div class="ic">🔐</div><div class="dt">অ্যাডমিন লগইন</div><input id="lem" type="email" placeholder="ইমেইল" class="fw"><input id="lpw" type="password" placeholder="পাসওয়ার্ড" class="fw"><div class="sub" style="color:#b91c1c">'+esc(ui.lerr)+'</div>'+yn(['lgo','লগইন'],['dno','বাতিল']);
-  return '<div class="mdl"><div class="box">'+b+'</div></div>'}
+  return '<div class="mdl"><div class="box'+(g.k==='nbox'?' nbx':'')+'">'+b+'</div></div>'}
 function renderApp(){
-  freezeSp();
+  attWatch();freezeSp();
   const cur=curFri(),out=sim(),sp=simSp();
   const ctl=editor?'<div class="row">'+(canSet()?'<button data-a="set">'+(ui.showSet?'বন্ধ করুন':'⚙ সদস্য ও সেটিংস')+'</button>':'')+'<button data-a="mdlg">✍ ম্যানুয়াল এন্ট্রি</button></div>':'';
   const m=(editor&&canSet()&&ui.showSet?settingsHtml():'')+(ui.tab==='h'?homeTab(out,sp,cur):ui.tab==='r'?rosterTab(out,sp,cur):ui.tab==='s'?spTab(sp,cur):ui.tab==='c'?calHtml(out,sp):ui.tab==='l'?leaveTab(out,sp):memTab(out,sp,cur));
-  $('app').innerHTML='<div class="colL"><div class="a-ban">'+banner()+'</div><div class="a-nt">'+tickerHtml()+noticeHtml()+'</div><div class="a-hero">'+heroHtml(out,sp)+ctl+nbtnRow()+'</div></div><div class="colR"><div class="a-tabs">'+tabsHtml()+'</div><div class="a-main">'+m+'</div></div><div class="a-ft">'+adminBar()+'</div>'+dlgHtml();tick();wxShow();
+  $('app').innerHTML='<div class="colL"><div class="a-ban">'+banner()+'</div><div class="a-nt">'+tickerHtml()+noticeHtml()+'</div><div class="a-hero">'+heroHtml(out,sp)+ctl+'</div></div><div class="colR"><div class="a-tabs">'+tabsHtml()+'</div><div class="a-main">'+m+'</div></div><div class="a-ft">'+adminBar()+'</div>'+dlgHtml();tick();wxShow();
 }
 let lastDay=iso(new Date());
 function tick(){const el=$('clk'),n=new Date();if(iso(n)!==lastDay){lastDay=iso(n);render();return}
-  if(el)el.innerHTML='<b>'+n.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+'</b>'+n.toLocaleDateString('bn-BD',{weekday:'long'})+', '+fd(iso(n))}
+  if(el)el.innerHTML='<b>'+n.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})+'</b>'+n.toLocaleDateString('bn-BD',{weekday:'long'})+', '+fd(iso(n))+' খ্রীঃ'}
 async function save(){
   if(!db||!editor){alert('সংরক্ষণ করার অনুমতি নেই, আবার লগইন করুন');return}
   render();
@@ -666,15 +714,15 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(!b||b.tagName==='SELECT')return;const a=b.dataset.a,d=b.dataset.d;
   if(!actOK(a)){alert('এই কাজের অনুমতি আপনার নেই');return}
   const A={
-    ntf(){enableNotif(false)},pn(){ntfPerson(b.dataset.id,b.dataset.m,b.dataset.t,b,b.dataset.mk,b.dataset.md)},ntfall(){ntfAll(b.dataset.m,b.dataset.t,b)},bcn(){ntfBc(b)},tab(){ui.tab=b.dataset.t;render()},open(){ui.open=ui.open===d?null:d;render()},set(){ui.showSet=!ui.showSet;render()},ordt(){ui.ord=!ui.ord;render()},spot(){ui.sord=!ui.sord;render()},
-    prof(){ui.dlg={k:'prof',id:b.dataset.id};render()},dno(){ui.dlg=null;setTimeout(render,0)},nbox(){ui.dlg={k:'nbox'};ntcMarkSeen();render()},
+    ntf(){enableNotif(false)},selfatt(){selfAtt(b.dataset.k,b)},ntfask(){ui.dlg=null;render();enableNotif(false)},pn(){ntfPerson(b.dataset.id,b.dataset.m,b.dataset.t,b,b.dataset.mk,b.dataset.md)},ntfall(){ntfAll(b.dataset.m,b.dataset.t,b)},bcn(){ntfBc(b)},tab(){ui.tab=b.dataset.t;render()},open(){ui.open=ui.open===d?null:d;render()},set(){ui.showSet=!ui.showSet;render()},ordt(){ui.ord=!ui.ord;render()},spot(){ui.sord=!ui.sord;render()},
+    prof(){ui.dlg={k:'prof',id:b.dataset.id};render()},dno(){ui.dlg=null;setTimeout(render,0)},nbox(){try{ui.nprev=+(localStorage.getItem(ntcSeenKey())||0)}catch(e){ui.nprev=0}ui.dlg={k:'nbox'};ntcMarkSeen();render()},
     call(){ui.dlg={k:'call',n:b.dataset.cn,p:b.dataset.p};render()},
     ccopy(){const m=$('cmsg'),n=ui.dlg.n.replace(/^\+88/,'');try{navigator.clipboard.writeText(n).then(()=>{m.textContent='নম্বর কপি হয়েছে'},()=>{m.textContent='নম্বরটি চেপে ধরে কপি করুন'})}catch(x){m.textContent='নম্বরটি চেপে ধরে কপি করুন'}},
     wa(){ui.dlg={k:'wa',u:b.dataset.u,m:b.dataset.m};render()},wyes(){ui.dlg=null;setTimeout(render,0)},
     sent(){ui.dlg={k:'sent',d:d};render()},yes(){S.sent[ui.dlg.d]=fd(iso(new Date()));ui.dlg=null;save()},unsent(){delete S.sent[d];save()},
     spsent(){if(S.spsent[d])delete S.spsent[d];else S.spsent[d]=fd(iso(new Date()));save()},
     att(){if(S.att[d])delete S.att[d];else S.att[d]=1;save()},
-    st(){const t=iso(new Date());if(b.dataset.v)S.status[t]=b.dataset.v;else delete S.status[t];save()},
+    st(){const t=iso(new Date());if(b.dataset.v)S.status[t]=b.dataset.v;else{delete S.status[t];selfDel('r')}save()},selfdel(){if(confirm('এই উপস্থিতির তথ্য মুছে দেবেন?'))selfDel(b.dataset.k)},
     abs(){ui.dlg={k:'abs',d:d,mode:'abs'};render()},cvd(){ui.dlg={k:'abs',d:d,mode:'cov'};render()},
     absyes(){const g=ui.dlg,w=sim().find(x=>x.date===g.d),v=($('subsel')||{}).value;
       if(g.mode==='abs'&&w&&w.duty){const ab=S.absent[g.d]||[];if(!ab.includes(w.duty))ab.push(w.duty);S.absent[g.d]=ab;S.absr[g.d]={reason:($('arsn')||{}).value||'',note:(($('anote')||{}).value||'').trim()}}
@@ -987,7 +1035,7 @@ function gateInit(){
     if(isAdm){startNtc();unMs=db.collection('members').onSnapshot(s=>{MEMS=s.docs.map(d=>Object.assign({id:d.id},d.data()));syncEmails();pubEm();const c=$('mcnt');if(c)c.textContent=pendCnt();if($('gx'))drawMem();if($('nx'))drawNtf()},()=>{})}
     else if(u&&bpOf(u)){unM=db.doc('members/'+u.uid).onSnapshot(d=>{
       if(!d.exists){db.doc('members/'+u.uid).set({bp:bpOf(u),approved:false,pwSet:!!ui.regPw,created:Date.now()}).then(()=>{const pf=ui.regProf;ui.regProf=null;ui.rf=null;if(pf)return db.doc('members/'+u.uid).update({prof:pf})}).catch(()=>{});return}
-      M=d.data();startNtc();if(hasG()&&!M.email)saveGmail();if(M.approved&&!window._ntfChk){window._ntfChk=1;enableNotif(true)}render()},()=>{})}
+      M=d.data();startNtc();if(hasG()&&!M.email)saveGmail();if(M.approved&&!window._ntfChk){window._ntfChk=1;enableNotif(true)}ntfAskMaybe();render()},()=>{})}
     render();
   });
 }
@@ -1211,6 +1259,34 @@ async function ausave(btn){
   try{await save();const r=$('ausres');if(r)r.textContent='✅ সংরক্ষণ হয়েছে'}catch(e){const r=$('ausres');if(r)r.textContent='❌ সংরক্ষণ হয়নি'}
   btn.disabled=false;btn.textContent=old;
 }
+// ===== সদস্যের নিজের উপস্থিতি (selfatt) =====
+var ATT={},_attKey='',_attUn=[];
+function attWatch(){try{
+  if(!db||!U)return;
+  const d=iso(new Date()),key=d+'|'+U.uid;
+  if(_attKey===key)return;
+  _attUn.forEach(f=>{try{f()}catch(e){}});_attUn=[];ATT={};_attKey=key;
+  ['r','s'].forEach(k=>{
+    _attUn.push(db.doc('selfatt/'+d+'-'+k).onSnapshot(sn=>{
+      const v=sn.exists?sn.data():null;
+      if(JSON.stringify(ATT[k]||null)!==JSON.stringify(v)){ATT[k]=v;render()}
+    },()=>{}));
+  });
+}catch(e){}}
+function selfDel(k){try{if(!db||!editor)return;db.doc('selfatt/'+iso(new Date())+'-'+(k==='s'?'s':'r')).delete().catch(e=>mtoast('মোছা যায়নি: '+((e&&e.code)||'')))}catch(e){}}
+async function selfAtt(k,btn){
+  try{
+    if(!db||!U)return;
+    const bp=bpOf(U);if(!bp){mtoast('বিপি নম্বর পাওয়া যায়নি');return}
+    if(!confirm('আপনি কি আজ নিজে হাজির হয়ে উপস্থিতি দিতে চান?'))return;
+    if(btn)btn.disabled=true;
+    await db.doc('selfatt/'+iso(new Date())+'-'+(k==='s'?'s':'r')).set({bp:bp,t:Date.now()});
+    mtoast('✅ আপনার উপস্থিতি জানানো হয়েছে');
+  }catch(e){
+    if(btn)btn.disabled=false;
+    alert('উপস্থিতি জানানো যায়নি'+(e&&e.code==='permission-denied'?' — অ্যাডমিনকে Firestore rules-এ selfatt-এর অনুমতি যোগ করতে হবে।':' ('+((e&&e.code)||'')+')'));
+  }
+}
 // ===== নোটিফিকেশন ঘর (ইতিহাস) =====
 var NTC=[],_ntcKey='',_ntcUn=[];
 function logNotice(ttl,body,tmap,j,opt){try{
@@ -1240,17 +1316,38 @@ function startNtc(){try{
 const ntcSeenKey=()=>'ntcSeen_'+(isAdm?'admin':(U?bpOf(U):''));
 function ntcUnseen(){try{const s=+(localStorage.getItem(ntcSeenKey())||0);return (NTC||[]).filter(x=>(x.t||0)>s).length}catch(e){return 0}}
 function ntcMarkSeen(){try{localStorage.setItem(ntcSeenKey(),String((NTC&&NTC[0])?NTC[0].t:Date.now()))}catch(e){}}
-function nbtnLabel(){const n=ntcUnseen();return '🔔 নোটিফিকেশন ঘর'+(n?' <b style="background:#dc2626;color:#fff;border-radius:10px;padding:1px 7px;font-size:12px">'+bn(n)+'</b>':'')}
+function nbtnLabel(){const n=ntcUnseen();return '🔔'+(n?'<b class="nbd">'+bn(n)+'</b>':'')}
+function nbtnTop(){try{if(!db||!U||!viewer())return '';return '<button data-a="nbox" id="nbtn" class="nbell" aria-label="নোটিফিকেশন">'+nbtnLabel()+'</button>'}catch(e){return ''}}
 function nbtnRow(){try{if(!db||!U||!viewer())return '';return '<div class="row" style="justify-content:center"><button data-a="nbox" id="nbtn">'+nbtnLabel()+'</button></div>'}catch(e){return ''}}
 function ntcRefresh(){try{
   if(ui.dlg&&ui.dlg.k==='nbox'){ntcMarkSeen();render();return}
   const e=$('nbtn');if(e)e.innerHTML=nbtnLabel();
 }catch(e){}}
+function ntcDay(t){try{return new Date(t).toLocaleDateString('en-CA',{timeZone:'Asia/Dhaka'})}catch(e){return ''}}
+function ntcDayLbl(t){const d=ntcDay(t),n=Date.now();if(d===ntcDay(n))return 'আজ';if(d===ntcDay(n-864e5))return 'গতকাল';try{return new Date(t).toLocaleDateString('bn-BD',{timeZone:'Asia/Dhaka',day:'numeric',month:'long',year:'numeric'})}catch(e){return d}}
+function ntcName(m){const p=pOfM(m),pf=m.prof||{};return p?fullnm(p.id):(pf.name?((pf.des||'')+(pf.rn?'/'+bn(pf.rn):'')+' '+pf.name).trim():'বিপি-'+m.bp)}
+function ntcWho(x){return (x.bps||[]).map(bp=>{const m=(MEMS||[]).find(k=>String(k.bp)===String(bp));return m?ntcName(m):'বিপি-'+bp})}
 function nboxHtml(){
-  const fmt=t=>{try{return new Date(t).toLocaleString('bn-BD',{timeZone:'Asia/Dhaka',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
-  const L=NTC||[];
-  const list=L.length?L.map(x=>'<div style="border-bottom:1px solid var(--bd);padding:8px 2px;text-align:left"><div style="font-weight:700">'+esc(x.title||'বার্তা')+'</div><div style="white-space:pre-wrap;margin:2px 0">'+esc(x.body||'')+'</div><div class="sub">'+fmt(x.t)+(isAdm?' · '+(x.all?'সবাইকে':'নির্দিষ্টজনকে')+' · '+bn(x.sent||0)+' ডিভাইসে':'')+'</div></div>').join(''):'<div class="sub" style="padding:14px 0">এখনো কোনো নোটিফিকেশন নেই</div>';
-  return '<div class="ic">🔔</div><div class="dt">নোটিফিকেশন ঘর</div><div style="max-height:60vh;overflow:auto">'+list+'</div><div class="row" style="justify-content:center;margin-top:8px"><button data-a="dno">বন্ধ</button></div>'
+  const tm=t=>{try{return new Date(t).toLocaleTimeString('bn-BD',{timeZone:'Asia/Dhaka',hour:'numeric',minute:'2-digit',hour12:true})}catch(e){return ''}};
+  const L=NTC||[],prev=ui.nprev||0;
+  const nw=L.filter(x=>(x.t||0)>prev).length;
+  let last='',list='';
+  L.forEach(x=>{
+    const d=ntcDay(x.t);
+    if(d!==last){last=d;list+='<div class="nd">'+esc(ntcDayLbl(x.t))+'</div>'}
+    const au=x.kind==='a',isNew=(x.t||0)>prev;
+    let meta='<span>'+tm(x.t)+'</span>';
+    if(au)meta+='<span class="pill au">⏰ অটো</span>';
+    if(isAdm){
+      meta+='<span class="pill">'+(x.all?'সবাইকে':'নির্দিষ্টজনকে')+'</span><span class="pill dv">📱 '+bn(x.sent||0)+' ডিভাইসে</span>';
+    }
+    let who='';
+    if(isAdm){const w=ntcWho(x);if(w.length)who='<details><summary>👥 কাদের ডিভাইসে গেছে ('+bn(w.length)+' জন) ▾</summary><div class="who">'+w.map(n=>'<span>'+esc(n)+'</span>').join('')+'</div></details>'}
+    list+='<div class="nc'+(au?' au':'')+(isNew?' nw':'')+'">'+(isNew?'<span class="newp">নতুন</span>':'')+'<div class="t1">'+esc(x.title||'বার্তা')+'</div><div class="t2">'+esc(x.body||'')+'</div><div class="t3">'+meta+'</div>'+who+'</div>';
+  });
+  if(!L.length)list='<div class="nem"><b>🔔</b>এখনো কোনো নোটিফিকেশন নেই</div>';
+  const sub=L.length?'মোট '+bn(L.length)+' টি বার্তা'+(nw?' · নতুন '+bn(nw)+' টি':''):'বার্তার ইতিহাস';
+  return '<div class="nh"><div class="ni0">🔔</div><div class="nt0"><div class="nt1">নোটিফিকেশন ঘর</div><div class="nt2">'+sub+'</div></div><button data-a="dno" aria-label="বন্ধ">✕</button></div><div class="nl">'+list+(L.length>=100?'<div class="nf">সর্বশেষ ১০০টি বার্তা দেখানো হচ্ছে</div>':'')+'</div>'
 }
 // ===== নোটিফিকেশন (অ্যাডমিনের দিক) =====
 async function postNotify(ttl,body,tmap,idToken,opt){
